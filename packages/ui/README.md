@@ -202,7 +202,65 @@ onUnmounted(() => {
 <div bind:this={container} style="width: 100%; height: 800px;"></div>
 ```
 
-### 4. Vanilla JavaScript / HTML
+### 4. Angular (v14+)
+
+```typescript
+import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { QRLayoutDesigner } from 'qrlayout-ui';
+import 'qrlayout-ui/style.css';
+
+@Component({
+  standalone: true,
+  selector: 'app-qr-designer',
+  template: '<div #container style="width: 100%; height: 800px;"></div>'
+})
+export class QrDesignerComponent implements AfterViewInit, OnDestroy {
+  @ViewChild('container') container!: ElementRef;
+  private designer?: QRLayoutDesigner;
+
+  ngAfterViewInit() {
+    this.designer = new QRLayoutDesigner({
+      element: this.container.nativeElement,
+      onSave: (data) => console.log('Saved Layout:', data)
+    });
+  }
+
+  ngOnDestroy() {
+    this.designer?.destroy();
+  }
+}
+```
+
+### 5. AngularJS (1.x)
+
+```javascript
+import { QRLayoutDesigner } from 'qrlayout-ui';
+import 'qrlayout-ui/style.css';
+
+angular.module('myApp', [])
+  .component('qrLayoutDesigner', {
+    template: '<div class="designer-container" style="width: 100%; height: 800px;"></div>',
+    controller: ['$element', function($element) {
+      let designer;
+
+      this.$onInit = () => {
+        const container = $element[0].querySelector('.designer-container');
+        designer = new QRLayoutDesigner({
+          element: container,
+          onSave: (data) => {
+            console.log('Saved Layout:', data);
+          }
+        });
+      };
+
+      this.$onDestroy = () => {
+        if (designer) designer.destroy();
+      };
+    }]
+  });
+```
+
+### 6. Vanilla JavaScript / HTML
 
 ```html
 <!DOCTYPE html>
@@ -224,3 +282,4 @@ onUnmounted(() => {
 </body>
 </html>
 ```
+
