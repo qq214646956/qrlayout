@@ -136,30 +136,30 @@ export const storage = {
     initializeDefaults: (): void => {
         if (storage.getEmployees().length === 0) {
             storage.saveEmployees([
-                { id: '1', fullName: 'Arjun Mehta', employeeId: 'EMP-001', department: 'Operations', joinDate: '2023-01-10' },
-                { id: '2', fullName: 'Priya Sharma', employeeId: 'EMP-002', department: 'Engineering', joinDate: '2023-03-15' },
-                { id: '3', fullName: 'Kiran Patel', employeeId: 'EMP-003', department: 'Logistics', joinDate: '2023-06-20' }
+                { id: '1', fullName: '张三', employeeId: 'EMP-001', department: '运营部', joinDate: '2023-01-10' },
+                { id: '2', fullName: '李四', employeeId: 'EMP-002', department: '工程部', joinDate: '2023-03-15' },
+                { id: '3', fullName: '王五', employeeId: 'EMP-003', department: '物流部', joinDate: '2023-06-20' }
             ]);
         }
         if (storage.getMachines().length === 0) {
             storage.saveMachines([
-                { id: 'm1', machineName: 'CNC Router X1', machineCode: 'CNC-01', location: 'Section A', model: '2024-Pro' },
-                { id: 'm2', machineName: 'Industrial 3D Printer', machineCode: 'PRN-01', location: 'Design Lab', model: 'Gen-3' },
-                { id: 'm3', machineName: 'Hydraulic Press', machineCode: 'PRS-05', location: 'Floor B', model: 'Heavy-Duty' }
+                { id: 'm1', machineName: 'CNC 雕刻机 X1', machineCode: 'CNC-01', location: 'A 区', model: '2024-Pro' },
+                { id: 'm2', machineName: '工业 3D 打印机', machineCode: 'PRN-01', location: '设计实验室', model: 'Gen-3' },
+                { id: 'm3', machineName: '液压冲床', machineCode: 'PRS-05', location: 'B 层', model: '重型' }
             ]);
         }
         if (storage.getBins().length === 0) {
             storage.saveBins([
-                { id: 'b1', binCode: 'BIN-A1-R1', storageType: 'Pallet Rack', aisle: 'Aisle 01', rack: 'R1' },
-                { id: 'b2', binCode: 'BIN-A1-R2', storageType: 'Shelf', aisle: 'Aisle 01', rack: 'R2' },
-                { id: 'b3', binCode: 'BIN-B2-R1', storageType: 'Cold Storage', aisle: 'Aisle 02', rack: 'R1' }
+                { id: 'b1', binCode: 'BIN-A1-R1', storageType: '托盘货架', aisle: '货道 01', rack: 'R1' },
+                { id: 'b2', binCode: 'BIN-A1-R2', storageType: '轻型货架', aisle: '货道 01', rack: 'R2' },
+                { id: 'b3', binCode: 'BIN-B2-R1', storageType: '冷藏库', aisle: '货道 02', rack: 'R1' }
             ]);
         }
         if (storage.getLabels().length === 0) {
             storage.saveLabels([
                 {
                     id: 'default-emp-layout',
-                    name: 'Professional ID Badge',
+                    name: '员工工牌',
                     targetEntity: 'employee',
                     width: 85.6,
                     height: 53.98,
@@ -174,29 +174,29 @@ export const storage = {
                 },
                 {
                     id: 'default-machine-layout',
-                    name: 'Equipment Asset Tag',
+                    name: '设备资产标签',
                     targetEntity: 'machine',
                     width: 60,
                     height: 30,
                     unit: 'mm',
                     backgroundColor: '#f8fafc',
                     elements: [
-                        { id: 'm1', type: 'text', x: 25, y: 5, w: 32, h: 5, content: 'PROPERTY OF INDUSTRIAL CO.', style: { fontSize: 8, fontWeight: 'bold' } },
+                        { id: 'm1', type: 'text', x: 25, y: 5, w: 32, h: 5, content: '工业公司资产', style: { fontSize: 8, fontWeight: 'bold' } },
                         { id: 'm2', type: 'text', x: 25, y: 12, w: 32, h: 8, content: '{{machineName}}', style: { fontSize: 14, fontWeight: 'bold' } },
-                        { id: 'm3', type: 'text', x: 25, y: 22, w: 32, h: 6, content: 'Code: {{machineCode}}', style: { fontSize: 10 } },
+                        { id: 'm3', type: 'text', x: 25, y: 22, w: 32, h: 6, content: '编号: {{machineCode}}', style: { fontSize: 10 } },
                         { id: 'm4', type: 'qr', x: 3, y: 5, w: 20, h: 20, content: 'asset:{{machineCode}}' }
                     ]
                 },
                 {
                     id: 'default-storage-layout',
-                    name: 'Storage Location Label',
+                    name: '库位标签',
                     targetEntity: 'storage',
                     width: 100,
                     height: 50,
                     unit: 'mm',
                     backgroundColor: '#ffffff',
                     elements: [
-                        { id: 'b1', type: 'text', x: 10, y: 10, w: 50, h: 8, content: 'AISLE: {{aisle}}', style: { fontSize: 12 } },
+                        { id: 'b1', type: 'text', x: 10, y: 10, w: 50, h: 8, content: '货道: {{aisle}}', style: { fontSize: 12 } },
                         { id: 'b2', type: 'text', x: 10, y: 25, w: 80, h: 20, content: '{{binCode}}', style: { fontSize: 32, fontWeight: 'bold' } },
                         { id: 'b4', type: 'qr', x: 65, y: 10, w: 30, h: 30, content: 'storage:{{binCode}}' }
                     ]

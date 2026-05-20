@@ -11,14 +11,12 @@ export function BinMaster() {
     const [labels, setLabels] = useState<StickerLayout[]>([]);
     const [selectedLayoutId, setSelectedLayoutId] = useState<string>('');
 
-    // Selection State
     const [selectedBinIds, setSelectedBinIds] = useState<string[]>([]);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingBin, setEditingBin] = useState<Bin | null>(null);
     const printer = useRef(new StickerPrinter());
 
-    // Form State
     const [formData, setFormData] = useState<Partial<Bin>>({});
 
     useEffect(() => {
@@ -28,11 +26,10 @@ export function BinMaster() {
     const loadData = () => {
         setBins(storage.getBins());
         const loadedLabels = storage.getLabels();
-        // Filter labels for 'bin' entity
-        const binLabels = loadedLabels.filter(l => l.targetEntity === 'storage');
-        setLabels(binLabels);
-        if (binLabels.length > 0 && !selectedLayoutId) {
-            setSelectedLayoutId(binLabels[0].id);
+        const storageLabels = loadedLabels.filter(l => l.targetEntity === 'storage');
+        setLabels(storageLabels);
+        if (storageLabels.length > 0 && !selectedLayoutId) {
+            setSelectedLayoutId(storageLabels[0].id);
         }
     };
 
@@ -55,13 +52,13 @@ export function BinMaster() {
 
     const handleSave = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!formData.binCode || !formData.aisle) return;
+        if (!formData.binCode || !formData.storageType) return;
 
         const bin: Bin = {
             id: editingBin?.id || crypto.randomUUID(),
             binCode: formData.binCode,
             storageType: formData.storageType || '',
-            aisle: formData.aisle,
+            aisle: formData.aisle || '',
             rack: formData.rack || ''
         };
 
@@ -71,15 +68,12 @@ export function BinMaster() {
     };
 
     const handleDelete = (bin: Bin) => {
-        if (window.confirm(`Are you sure you want to delete Bin ${bin.binCode}?`)) {
+        if (window.confirm(`确定要删除库位 ${bin.binCode} 吗？`)) {
             storage.deleteBin(bin.id);
             loadData();
-            // Remove from selection if deleted
             setSelectedBinIds(prev => prev.filter(id => id !== bin.id));
         }
     };
-
-    // --- Export Logic ---
 
     const getSelectedBins = () => {
         return bins.filter(b => selectedBinIds.includes(b.id));
@@ -93,46 +87,28 @@ export function BinMaster() {
         const layout = getActiveLayout();
         const selected = getSelectedBins();
         if (!layout) return;
-
-        await exportToPNG({
-            layout,
-            items: selected,
-            printer: printer.current,
-            baseFilename: 'bin-label'
-        });
+        await exportToPNG({ layout, items: selected, printer: printer.current, baseFilename: 'storage-label' });
     };
 
     const handleExportPDF = async () => {
         const layout = getActiveLayout();
         const selected = getSelectedBins();
         if (!layout) return;
-
-        await exportToBatchPDF({
-            layout,
-            items: selected,
-            printer: printer.current,
-            baseFilename: 'batch-bin-labels'
-        });
+        await exportToBatchPDF({ layout, items: selected, printer: printer.current, baseFilename: 'batch-storage-labels' });
     };
 
     const handleExportZPL = () => {
         const layout = getActiveLayout();
         const selected = getSelectedBins();
         if (!layout) return;
-
-        exportToZPLFile({
-            layout,
-            items: selected,
-            printer: printer.current,
-            baseFilename: 'batch-bin-labels'
-        });
+        exportToZPLFile({ layout, items: selected, printer: printer.current, baseFilename: 'batch-storage-labels' });
     };
 
     const columns: Column<Bin>[] = [
-        { header: 'BIN Code', accessorKey: 'binCode' },
-        { header: 'Storage Type', accessorKey: 'storageType' },
-        { header: 'Aisle', accessorKey: 'aisle' },
-        { header: 'Rack', accessorKey: 'rack' },
+        { header: '库位编号', accessorKey: 'binCode' },
+        { header: '存储类型', accessorKey: 'storageType' },
+        { header: '货道', accessorKey: 'aisle' },
+        { header: '货架', accessorKey: 'rack' },
     ];
 
     const hasSelection = selectedBinIds.length > 0;
@@ -140,22 +116,20 @@ export function BinMaster() {
 
     return (
         <div className="max-w-7xl mx-auto px-8 py-8 animate-in fade-in duration-500">
-            {/* Top Bar: Title & Configuration */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Storage Master (BINs)</h2>
-                    <p className="text-gray-500">Manage warehouse locations and print storage labels</p>
+                    <h2 className="text-2xl font-bold text-gray-900">库位主数据</h2>
+                    <p className="text-gray-500">管理仓库位置并打印库位标签</p>
                 </div>
 
                 <div className="flex items-center gap-3">
-                    {/* Layout Selector */}
                     <div className="relative">
                         <select
                             className="appearance-none bg-white border border-gray-300 text-gray-700 py-2 pl-4 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm cursor-pointer"
                             value={selectedLayoutId}
                             onChange={(e) => setSelectedLayoutId(e.target.value)}
                         >
-                            <option value="" disabled>Select Layout Template</option>
+                            <option value="" disabled>选择布局模板</option>
                             {labels.map(label => (
                                 <option key={label.id} value={label.id}>{label.name}</option>
                             ))}
@@ -170,153 +144,70 @@ export function BinMaster() {
                         className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm cursor-pointer"
                     >
                         <Plus size={18} />
-                        <span className="hidden sm:inline">Add BIN</span>
+                        <span className="hidden sm:inline">添加库位</span>
                     </button>
                 </div>
             </div>
 
-            {/* Info Guide */}
             {!hasSelection && (
                 <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6 flex items-start gap-3 animate-in fade-in">
                     <Info className="text-blue-600 shrink-0 mt-0.5" size={20} />
                     <div className="text-sm text-blue-900">
-                        <p className="font-semibold">Warehouse Labeling Instructions:</p>
+                        <p className="font-semibold">仓库标签打印说明：</p>
                         <ol className="list-decimal ml-4 mt-1 space-y-0.5 text-blue-800">
-                            <li>Select a <strong>Storage BIN Label</strong> layout from the dropdown.</li>
-                            <li>Select the target bins from the table below.</li>
-                            <li>Download PNG or PDF for standard labels, or ZPL for thermal industrial printers.</li>
+                            <li>从上方下拉菜单中<strong>选择库位标签布局模板</strong>。</li>
+                            <li>在下方表格中勾选目标库位。</li>
+                            <li>下载 PNG 或 PDF 用于标准标签打印，或下载 ZPL 用于工业热敏打印机。</li>
                         </ol>
                     </div>
                 </div>
             )}
 
-            {/* Batch Actions Toolkit */}
             {hasSelection && (
                 <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-6 flex flex-wrap items-center justify-between gap-4 animate-in slide-in-from-top-2">
                     <div className="flex items-center gap-2 text-indigo-900">
                         <span className="font-semibold bg-indigo-100 px-2 py-0.5 rounded text-sm">{selectedBinIds.length}</span>
-                        <span className="font-medium">Selected Bins</span>
+                        <span className="font-medium">已选中库位</span>
                     </div>
-
                     <div className="flex items-center gap-2">
-                        <button
-                            onClick={handleExportPNG}
-                            disabled={!hasLayout}
-                            className="flex items-center gap-2 bg-white text-gray-700 hover:text-indigo-600 border border-gray-200 hover:border-indigo-200 px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                            title="Download as PNG"
-                        >
-                            <ImageIcon size={16} />
-                            PNG
-                        </button>
-                        <button
-                            onClick={handleExportPDF}
-                            disabled={!hasLayout}
-                            className="flex items-center gap-2 bg-white text-gray-700 hover:text-red-600 border border-gray-200 hover:border-red-200 px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                            title="Download as PDF"
-                        >
-                            <FileText size={16} />
-                            PDF
-                        </button>
-                        <button
-                            onClick={handleExportZPL}
-                            disabled={!hasLayout}
-                            className="flex items-center gap-2 bg-white text-gray-700 hover:text-black border border-gray-200 hover:border-gray-400 px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                            title="Generate ZPL Code"
-                        >
-                            <Printer size={16} />
-                            ZPL
-                        </button>
+                        <button onClick={handleExportPNG} disabled={!hasLayout} className="flex items-center gap-2 bg-white text-gray-700 hover:text-indigo-600 border border-gray-200 hover:border-indigo-200 px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer" title="下载为 PNG 图片"><ImageIcon size={16} />PNG</button>
+                        <button onClick={handleExportPDF} disabled={!hasLayout} className="flex items-center gap-2 bg-white text-gray-700 hover:text-red-600 border border-gray-200 hover:border-red-200 px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer" title="下载为 PDF"><FileText size={16} />PDF</button>
+                        <button onClick={handleExportZPL} disabled={!hasLayout} className="flex items-center gap-2 bg-white text-gray-700 hover:text-black border border-gray-200 hover:border-gray-400 px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer" title="生成 ZPL 代码"><Printer size={16} />ZPL</button>
                     </div>
                 </div>
             )}
 
-            <Table
-                data={bins}
-                columns={columns}
-                keyField="id"
-                onEdit={handleOpenModal}
-                onDelete={handleDelete}
-                selectedIds={selectedBinIds}
-                onSelectionChange={setSelectedBinIds}
-            />
+            <Table data={bins} columns={columns} keyField="id" onEdit={handleOpenModal} onDelete={handleDelete} selectedIds={selectedBinIds} onSelectionChange={setSelectedBinIds} />
 
-            {/* Modal Overlay */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
                     <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden transform transition-all">
                         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
                             <h3 className="text-lg font-semibold text-gray-900">
-                                {editingBin ? 'Edit BIN' : 'Add New BIN'}
+                                {editingBin ? '编辑库位' : '添加新库位'}
                             </h3>
-                            <button
-                                onClick={handleCloseModal}
-                                className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
-                            >
-                                <X size={20} />
-                            </button>
+                            <button onClick={handleCloseModal} className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"><X size={20} /></button>
                         </div>
-
                         <form onSubmit={handleSave} className="p-6 space-y-4">
                             <div className="space-y-1.5">
-                                <label className="block text-sm font-medium text-gray-700">BIN Code</label>
-                                <input
-                                    type="text"
-                                    required
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                                    value={formData.binCode || ''}
-                                    onChange={e => setFormData({ ...formData, binCode: e.target.value })}
-                                    placeholder="e.g. BIN-A1-R42"
-                                />
+                                <label className="block text-sm font-medium text-gray-700">库位编号</label>
+                                <input type="text" required className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" value={formData.binCode || ''} onChange={e => setFormData({ ...formData, binCode: e.target.value })} placeholder="例如：BIN-A1-R42" />
                             </div>
-
                             <div className="space-y-1.5">
-                                <label className="block text-sm font-medium text-gray-700">Storage Type</label>
-                                <input
-                                    type="text"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                                    value={formData.storageType || ''}
-                                    onChange={e => setFormData({ ...formData, storageType: e.target.value })}
-                                    placeholder="e.g. Pallet Rack"
-                                />
+                                <label className="block text-sm font-medium text-gray-700">存储类型</label>
+                                <input type="text" required className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" value={formData.storageType || ''} onChange={e => setFormData({ ...formData, storageType: e.target.value })} placeholder="例如：托盘货架" />
                             </div>
-
-                            <div className="flex gap-4">
-                                <div className="flex-1 space-y-1.5">
-                                    <label className="block text-sm font-medium text-gray-700">Aisle</label>
-                                    <input
-                                        type="text"
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                                        value={formData.aisle || ''}
-                                        onChange={e => setFormData({ ...formData, aisle: e.target.value })}
-                                        placeholder="e.g. Aisle 01"
-                                    />
-                                </div>
-                                <div className="flex-1 space-y-1.5">
-                                    <label className="block text-sm font-medium text-gray-700">Rack</label>
-                                    <input
-                                        type="text"
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                                        value={formData.rack || ''}
-                                        onChange={e => setFormData({ ...formData, rack: e.target.value })}
-                                        placeholder="e.g. R-4"
-                                    />
-                                </div>
+                            <div className="space-y-1.5">
+                                <label className="block text-sm font-medium text-gray-700">货道</label>
+                                <input type="text" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" value={formData.aisle || ''} onChange={e => setFormData({ ...formData, aisle: e.target.value })} placeholder="例如：货道 01" />
                             </div>
-
+                            <div className="space-y-1.5">
+                                <label className="block text-sm font-medium text-gray-700">货架号</label>
+                                <input type="text" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" value={formData.rack || ''} onChange={e => setFormData({ ...formData, rack: e.target.value })} placeholder="例如：R-4" />
+                            </div>
                             <div className="flex gap-3 pt-4 mt-2">
-                                <button
-                                    type="button"
-                                    onClick={handleCloseModal}
-                                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors cursor-pointer"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium shadow-sm transition-colors cursor-pointer"
-                                >
-                                    Save Changes
-                                </button>
+                                <button type="button" onClick={handleCloseModal} className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors cursor-pointer">取消</button>
+                                <button type="submit" className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium shadow-sm transition-colors cursor-pointer">保存更改</button>
                             </div>
                         </form>
                     </div>

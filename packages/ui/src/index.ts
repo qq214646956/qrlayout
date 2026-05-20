@@ -71,7 +71,7 @@ export class QRLayoutDesigner {
         // Default Layout if not provided
         this.currentLayout = (options.initialLayout as DesignerLayout) || {
             id: "layout-" + Date.now(),
-            name: "New Layout",
+            name: "新布局",
             targetEntity: "",
             width: 100,
             height: 60,
@@ -100,11 +100,11 @@ export class QRLayoutDesigner {
         <header>
             <div data-el="header-left"></div>
             <div style="display: flex; gap: 12px; align-items: center;">
-                <button class="btn btn-icon btn-outline" data-action="toggle-theme" title="Toggle Dark Mode">
+                <button class="btn btn-icon btn-outline" data-action="toggle-theme" title="切换深色模式">
                     <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
                     <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
                 </button>
-                <button class="btn btn-primary" data-action="save">Save Layout</button>
+                <button class="btn btn-primary" data-action="save">保存布局</button>
             </div>
         </header>
         <div class="main-container">
@@ -113,39 +113,39 @@ export class QRLayoutDesigner {
                 <aside class="sidebar">
                     <!-- Configuration -->
                     <div class="sidebar-section">
-                        <div class="sidebar-title">Layout Settings</div>
+                        <div class="sidebar-title">布局设置</div>
                         <div class="form-group">
-                            <label>Target Entity</label>
+                            <label>目标实体</label>
                             <select data-input="entity">
-                                <option value="">Select Entity...</option>
+                                <option value="">选择实体...</option>
                                 <!-- Populated dynamically -->
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Internal Layout Name</label>
-                            <input type="text" data-input="name" placeholder="Standard Badge" />
+                            <label>内部布局名称</label>
+                            <input type="text" data-input="name" placeholder="标准标签" />
                         </div>
                         <div class="form-row">
                             <div class="form-group" style="flex: 1">
-                                <label data-label="width">Width (mm)</label>
+                                <label data-label="width">宽度 (mm)</label>
                                 <input type="number" data-input="width" value="100" step="0.01" />
                             </div>
                             <div class="form-group" style="flex: 1">
-                                <label data-label="height">Height (mm)</label>
+                                <label data-label="height">高度 (mm)</label>
                                 <input type="number" data-input="height" value="60" step="0.01" />
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>Measurement Unit</label>
+                            <label>计量单位</label>
                             <select data-input="unit">
-                                <option value="mm">Millimeters (mm)</option>
-                                <option value="cm">Centimeters (cm)</option>
-                                <option value="in">Inches (in)</option>
-                                <option value="px">Pixels (px)</option>
+                                <option value="mm">毫米 (mm)</option>
+                                <option value="cm">厘米 (cm)</option>
+                                <option value="in">英寸 (in)</option>
+                                <option value="px">像素 (px)</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Base Background</label>
+                            <label>背景颜色</label>
                             <div class="color-picker-wrapper">
                                 <div data-el="bg-preview" class="color-preview" style="background: #ffffff"></div>
                                 <input type="text" data-input="bg" value="#ffffff" />
@@ -156,10 +156,10 @@ export class QRLayoutDesigner {
                     <!-- Elements List -->
                     <div class="sidebar-section">
                         <div class="sidebar-title">
-                            Elements
+                            元素
                             <div style="display: flex; gap: 6px">
-                                <button class="btn btn-outline btn-sm" data-action="add-text" title="Add Text">+ Text</button>
-                                <button class="btn btn-outline btn-sm" data-action="add-qr" title="Add QR">+ QR</button>
+                                <button class="btn btn-outline btn-sm" data-action="add-text" title="添加文本">+ 文本</button>
+                                <button class="btn btn-outline btn-sm" data-action="add-qr" title="添加二维码">+ 二维码</button>
                             </div>
                         </div>
                         <div data-el="elements-container" class="element-list" style="margin-top: 8px;"></div>
@@ -169,15 +169,15 @@ export class QRLayoutDesigner {
                     <div class="sidebar-section" style="margin-top: auto; border-top: 1px solid var(--border-color); border-bottom: none;">
                         <button class="btn btn-outline btn-block" data-action="edit-sample-data" style="gap: 10px;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h2"/><path d="M8 17h2"/><path d="M14 13h2"/><path d="M14 17h2"/></svg>
-                            Edit Sample Data
+                            编辑样本数据
                         </button>
                     </div>
                 </aside>
 
                 <!-- CENTER: CANVAS -->
                 <main class="preview-area">
-                    <button id="toggle-left" class="sidebar-toggle" title="Toggle Settings">☰</button>
-                    <button id="toggle-right" class="sidebar-toggle" title="Toggle Properties" style="display: none;">✎</button>
+                    <button id="toggle-left" class="sidebar-toggle" title="切换设置面板">☰</button>
+                    <button id="toggle-right" class="sidebar-toggle" title="切换属性面板" style="display: none;">✎</button>
 
                     <div class="canvas-wrapper">
                         <canvas data-el="preview-canvas"></canvas>
@@ -188,9 +188,9 @@ export class QRLayoutDesigner {
                 <!-- RIGHT SIDEBAR: PROPERTIES -->
                 <aside class="sidebar-right" data-el="property-panel" style="display: none;">
                     <div class="sidebar-section">
-                        <div class="sidebar-title">Element Properties</div>
+                        <div class="sidebar-title">元素属性</div>
                         <div data-el="prop-content"></div>
-                        <button class="btn btn-danger btn-block" data-action="delete-element" style="margin-top: 24px">Delete Element</button>
+                        <button class="btn btn-danger btn-block" data-action="delete-element" style="margin-top: 24px">删除元素</button>
                     </div>
                 </aside>
             </div>
@@ -200,17 +200,17 @@ export class QRLayoutDesigner {
         <div class="modal-overlay" data-el="sample-data-modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3>Edit Sample Data</h3>
+                    <h3>编辑样本数据</h3>
                     <button class="btn-close" data-action="close-modal">&times;</button>
                 </div>
                 <div class="modal-body">
                     <p style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 20px;">
-                        Update the values below to see how they appear on your layout in real-time.
+                        更新以下值，实时查看它们在布局中的效果。
                     </p>
                     <div data-el="sample-data-container" class="sample-data-grid"></div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-primary" data-action="close-modal">Done Editing</button>
+                    <button class="btn btn-primary" data-action="close-modal">完成编辑</button>
                 </div>
             </div>
         </div>
@@ -246,7 +246,6 @@ export class QRLayoutDesigner {
 
     private renderEntityOptions() {
         const select = this.inputs.entity;
-        // Keep the first default option "Select Entity..."
         while (select.options.length > 1) {
             select.remove(1);
         }
@@ -263,12 +262,11 @@ export class QRLayoutDesigner {
     private syncInputsFromLayout() {
         this.inputs.entity.value = this.currentLayout.targetEntity || "";
         this.inputs.name.value = this.currentLayout.name;
-        // Updated: Removed .toFixed(2) to show clean integers like 100 instead of 100.00
         this.inputs.width.value = String(this.currentLayout.width);
         this.inputs.height.value = String(this.currentLayout.height);
         this.inputs.unit.value = this.currentLayout.unit;
-        this.inputs.labelWidth.innerText = `Width (${this.currentLayout.unit})`;
-        this.inputs.labelHeight.innerText = `Height (${this.currentLayout.unit})`;
+        this.inputs.labelWidth.innerText = `宽度 (${this.currentLayout.unit})`;
+        this.inputs.labelHeight.innerText = `高度 (${this.currentLayout.unit})`;
         this.inputs.bg.value = this.currentLayout.backgroundColor || "#ffffff";
         this.inputs.bgPreview.style.backgroundColor = this.inputs.bg.value;
     }
@@ -336,8 +334,8 @@ export class QRLayoutDesigner {
         this.inputs.height.oninput = (e) => { this.currentLayout.height = parseFloat((e.target as HTMLInputElement).value) || 60; this.updatePreview(); };
         this.inputs.unit.onchange = (e) => {
             this.currentLayout.unit = (e.target as HTMLSelectElement).value as any;
-            this.inputs.labelWidth.innerText = `Width (${this.currentLayout.unit})`;
-            this.inputs.labelHeight.innerText = `Height (${this.currentLayout.unit})`;
+            this.inputs.labelWidth.innerText = `宽度 (${this.currentLayout.unit})`;
+            this.inputs.labelHeight.innerText = `高度 (${this.currentLayout.unit})`;
             this.updatePreview();
         };
         this.inputs.bg.oninput = (e) => {
@@ -349,7 +347,7 @@ export class QRLayoutDesigner {
         // Element Actions
         this.container.querySelector('[data-action="add-text"]')?.addEventListener('click', () => {
             const id = "t" + Date.now();
-            this.currentLayout.elements.push({ id, type: 'text', x: 10, y: 10, w: 40, h: 10, content: "New Text" });
+            this.currentLayout.elements.push({ id, type: 'text', x: 10, y: 10, w: 40, h: 10, content: "新文本" });
             this.selectElement(id);
             this.updatePreview();
         });
@@ -380,13 +378,10 @@ export class QRLayoutDesigner {
     public async updatePreview() {
         if (!this.canvas || !this.currentLayout) return;
 
-        // Use sample data based on entity and provided schemas
         const sampleData = (this.currentLayout.targetEntity && this.entitySchemas[this.currentLayout.targetEntity])
             ? this.entitySchemas[this.currentLayout.targetEntity].sampleData
             : {};
 
-        // renderToCanvas resets canvas.width/height which triggers a browser reflow.
-        // Skipping it during drag prevents other elements from shaking.
         if (!this.isDragging) {
             await this.printer.renderToCanvas(this.currentLayout, sampleData, this.canvas);
             const rect = this.canvas.getBoundingClientRect();
@@ -411,7 +406,7 @@ export class QRLayoutDesigner {
             this.sampleDataContainer.innerHTML = `
                 <div style="font-size: 0.75rem; color: var(--text-secondary); padding: 12px; background: var(--panel-bg-alt); border-radius: 8px; border: 1px dashed var(--border-color); text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    <span>Select an entity above to see fields</span>
+                    <span>请先选择实体以查看字段</span>
                 </div>
             `;
             return;
@@ -439,7 +434,7 @@ export class QRLayoutDesigner {
             const input = document.createElement("input");
             input.type = "text";
             input.value = schema.sampleData[field.name] || "";
-            input.placeholder = `Enter sample ${field.name}...`;
+            input.placeholder = `输入 ${field.name} 样本...`;
             input.style.fontSize = "0.8125rem";
 
             input.oninput = (e) => {
@@ -477,7 +472,6 @@ export class QRLayoutDesigner {
         this.renderPropertyPanel();
         this.updateEditorOverlay();
 
-        // Auto-show right sidebar on mobile if an element is selected
         if (id && this.container.offsetWidth <= 768) {
             this.rightSidebar.classList.add("show");
         }
@@ -505,50 +499,50 @@ export class QRLayoutDesigner {
         this.propContent.innerHTML = `
             <div class="form-group">
                 ${el.type === 'qr' ? `
-                <label>Field Separator</label>
-                <input type="text" id="prop-qr-separator" placeholder="e.g. | or -" value="${el.qrSeparator || ''}">
+                <label>字段分隔符</label>
+                <input type="text" id="prop-qr-separator" placeholder="例如 | 或 -" value="${el.qrSeparator || ''}">
                 ` : ''}
-                <label>Content</label>
+                <label>内容</label>
                 <textarea data-prop="content-val" rows="2">${el.content}</textarea>
                 <div class="field-buttons" data-el="field-suggestions"></div>
             </div>
             <div class="form-row">
-                <div class="form-group" style="flex:1;"><label>X (pos)</label><input type="number" step="0.01" data-prop="x" value="${el.x.toFixed(2)}"></div>
-                <div class="form-group" style="flex:1;"><label>Y (pos)</label><input type="number" step="0.01" data-prop="y" value="${el.y.toFixed(2)}"></div>
+                <div class="form-group" style="flex:1;"><label>X (位置)</label><input type="number" step="0.01" data-prop="x" value="${el.x.toFixed(2)}"></div>
+                <div class="form-group" style="flex:1;"><label>Y (位置)</label><input type="number" step="0.01" data-prop="y" value="${el.y.toFixed(2)}"></div>
             </div>
             <div class="form-row">
-                <div class="form-group" style="flex:1;"><label>Width</label><input type="number" step="0.01" data-prop="w" value="${el.w.toFixed(2)}"></div>
-                <div class="form-group" style="flex:1;"><label>Height</label><input type="number" step="0.01" data-prop="h" value="${el.h.toFixed(2)}"></div>
+                <div class="form-group" style="flex:1;"><label>宽度</label><input type="number" step="0.01" data-prop="w" value="${el.w.toFixed(2)}"></div>
+                <div class="form-group" style="flex:1;"><label>高度</label><input type="number" step="0.01" data-prop="h" value="${el.h.toFixed(2)}"></div>
             </div>
             ${el.type === 'text' ? `
                 <div style="height: 1px; background: var(--border-color); margin: 16px 0;"></div>
                 <div class="form-row">
                     <div class="form-group" style="flex:1;">
-                        <label>Font Size</label>
+                        <label>字体大小</label>
                         <input type="number" data-prop="fontSize" value="${el.style?.fontSize || 12}">
                     </div>
                     <div class="form-group" style="flex:1;">
-                        <label>Font Weight</label>
+                        <label>字体粗细</label>
                         <select data-prop="fontWeight">
-                            <option value="normal" ${el.style?.fontWeight === 'normal' ? 'selected' : ''}>Normal</option>
-                            <option value="bold" ${el.style?.fontWeight === 'bold' ? 'selected' : ''}>Bold</option>
+                            <option value="normal" ${el.style?.fontWeight === 'normal' ? 'selected' : ''}>正常</option>
+                            <option value="bold" ${el.style?.fontWeight === 'bold' ? 'selected' : ''}>加粗</option>
                         </select>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Horizontal Align</label>
+                    <label>水平对齐</label>
                     <div class="toggle-group" style="width: 100%;">
-                        <button class="toggle-btn prop-align-h ${el.style?.textAlign === 'left' ? 'active' : ''}" data-val="left" style="flex:1;">Left</button>
-                        <button class="toggle-btn prop-align-h ${el.style?.textAlign === 'center' ? 'active' : ''}" data-val="center" style="flex:1;">Center</button>
-                        <button class="toggle-btn prop-align-h ${el.style?.textAlign === 'right' ? 'active' : ''}" data-val="right" style="flex:1;">Right</button>
+                        <button class="toggle-btn prop-align-h ${el.style?.textAlign === 'left' ? 'active' : ''}" data-val="left" style="flex:1;">左</button>
+                        <button class="toggle-btn prop-align-h ${el.style?.textAlign === 'center' ? 'active' : ''}" data-val="center" style="flex:1;">中</button>
+                        <button class="toggle-btn prop-align-h ${el.style?.textAlign === 'right' ? 'active' : ''}" data-val="right" style="flex:1;">右</button>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Vertical Align</label>
+                    <label>垂直对齐</label>
                     <div class="toggle-group" style="width: 100%;">
-                        <button class="toggle-btn prop-align-v ${el.style?.verticalAlign === 'top' ? 'active' : ''}" data-val="top" style="flex:1;">Top</button>
-                        <button class="toggle-btn prop-align-v ${el.style?.verticalAlign === 'middle' ? 'active' : ''}" data-val="middle" style="flex:1;">Middle</button>
-                        <button class="toggle-btn prop-align-v ${el.style?.verticalAlign === 'bottom' ? 'active' : ''}" data-val="bottom" style="flex:1;">Bottom</button>
+                        <button class="toggle-btn prop-align-v ${el.style?.verticalAlign === 'top' ? 'active' : ''}" data-val="top" style="flex:1;">上</button>
+                        <button class="toggle-btn prop-align-v ${el.style?.verticalAlign === 'middle' ? 'active' : ''}" data-val="middle" style="flex:1;">中</button>
+                        <button class="toggle-btn prop-align-v ${el.style?.verticalAlign === 'bottom' ? 'active' : ''}" data-val="bottom" style="flex:1;">下</button>
                     </div>
                 </div>
             ` : ''}
@@ -629,13 +623,11 @@ export class QRLayoutDesigner {
     private updateEditorOverlay() {
         if (!this.editorOverlay || !this.canvas) return;
 
-        // Only update overlay dimensions when not dragging (canvas size is stable)
         if (!this.isDragging) {
             this.editorOverlay.style.width = this.canvas.style.width;
             this.editorOverlay.style.height = this.canvas.style.height;
         }
 
-        // Reconcile DOM: remove stale items, keep existing ones
         const existingIds = new Set(this.currentLayout.elements.map(e => e.id));
         this.editorOverlay.querySelectorAll('.editor-item').forEach(node => {
             if (!existingIds.has((node as HTMLElement).dataset.id!)) node.remove();
@@ -645,7 +637,6 @@ export class QRLayoutDesigner {
             let item = this.editorOverlay.querySelector(`.editor-item[data-id="${el.id}"]`) as HTMLElement | null;
 
             if (!item) {
-                // Create once, attach listeners once
                 item = document.createElement("div");
                 item.className = "editor-item";
                 item.dataset.id = el.id;
@@ -670,7 +661,6 @@ export class QRLayoutDesigner {
                 this.editorOverlay.appendChild(item);
             }
 
-            // Sync state
             item.classList.toggle("selected", this.selectedElementId === el.id);
             item.style.left = `${el.x * this.pxPerUnit}px`;
             item.style.top = `${el.y * this.pxPerUnit}px`;
@@ -689,14 +679,12 @@ export class QRLayoutDesigner {
         const onMove = (me: MouseEvent) => {
             el.w = Math.max(1, initW + (me.clientX - startX) / this.pxPerUnit);
             el.h = Math.max(1, initH + (me.clientY - startY) / this.pxPerUnit);
-            // Only update THIS element's box — no canvas reset, no other elements affected
             item.style.width = `${el.w * this.pxPerUnit}px`;
             item.style.height = `${el.h * this.pxPerUnit}px`;
             this.renderPropertyPanel();
         };
         const onUp = () => {
             this.isDragging = false;
-            // Full canvas re-render only after drag ends
             this.updatePreview();
             this.renderPropertyPanel();
             window.removeEventListener("mousemove", onMove);
@@ -716,14 +704,12 @@ export class QRLayoutDesigner {
         const onMove = (me: MouseEvent) => {
             el.x = initX + (me.clientX - startX) / this.pxPerUnit;
             el.y = initY + (me.clientY - startY) / this.pxPerUnit;
-            // Only update THIS element's box — no canvas reset, no other elements affected
             item.style.left = `${el.x * this.pxPerUnit}px`;
             item.style.top = `${el.y * this.pxPerUnit}px`;
             this.renderPropertyPanel();
         };
         const onUp = () => {
             this.isDragging = false;
-            // Full canvas re-render only after drag ends
             this.updatePreview();
             this.renderPropertyPanel();
             window.removeEventListener("mousemove", onMove);
@@ -736,6 +722,5 @@ export class QRLayoutDesigner {
     public destroy() {
         this.container.innerHTML = "";
         this.container.classList.remove("qrlayout-designer");
-        // Additional cleanup if necessary
     }
 }

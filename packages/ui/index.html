@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>QR Layout Designer | Open Source Package</title>
+    <title>条码布局设计器 | 开源组件</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -36,32 +36,32 @@
       // Example Entity Schemas
       const schemas = {
         employee: {
-          label: "Employee",
+          label: "员工",
           fields: [
-            { name: "name", label: "Full Name" },
-            { name: "employeeId", label: "Employee ID" },
-            { name: "designation", label: "Designation" },
-            { name: "place", label: "Location" },
-            { name: "bloodGroup", label: "Blood Group" },
+            { name: "name", label: "姓名" },
+            { name: "employeeId", label: "工号" },
+            { name: "designation", label: "职位" },
+            { name: "place", label: "工作地点" },
+            { name: "bloodGroup", label: "血型" },
           ],
           sampleData: {
-            name: "Rajesh Sharma",
+            name: "张三",
             employeeId: "EMP-101",
-            designation: "Software Engineer",
-            place: "Bengaluru",
+            designation: "软件工程师",
+            place: "北京",
           },
         },
         product: {
-          label: "Product",
+          label: "产品",
           fields: [
-            { name: "title", label: "Product Title" },
-            { name: "sku", label: "SKU Code" },
-            { name: "price", label: "Price" },
+            { name: "title", label: "产品名称" },
+            { name: "sku", label: "SKU 编号" },
+            { name: "price", label: "价格" },
           ],
           sampleData: {
-            title: "Wireless Mouse",
+            title: "无线鼠标",
             sku: "WM-889",
-            price: "$25.00",
+            price: "¥169.00",
           },
         },
       };
@@ -69,7 +69,7 @@
       // Example Initial Layout
       const initialLayout = {
         id: "layout-demo",
-        name: "Demo Badge",
+        name: "演示工牌",
         targetEntity: "employee",
         width: 100, // Number, not string
         height: 60,
@@ -83,7 +83,7 @@
             y: 5,
             w: 90,
             h: 8,
-            content: "EMPLOYEE ID",
+            content: "员工工牌",
             style: { textAlign: "center", fontWeight: "bold" },
           },
           {
@@ -114,8 +114,8 @@
         entitySchemas: schemas,
         initialLayout: initialLayout,
         onSave: (layout) => {
-          console.log("Saved Layout:", layout);
-          alert("Layout saved! Check console.");
+          console.log("已保存布局:", layout);
+          alert("布局已保存！请查看控制台。");
         },
       });
     </script>

@@ -11,14 +11,12 @@ export function EmployeeMaster() {
     const [labels, setLabels] = useState<StickerLayout[]>([]);
     const [selectedLayoutId, setSelectedLayoutId] = useState<string>('');
 
-    // Selection State
     const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>([]);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
     const printer = useRef(new StickerPrinter());
 
-    // Form State
     const [formData, setFormData] = useState<Partial<Employee>>({});
 
     useEffect(() => {
@@ -28,7 +26,6 @@ export function EmployeeMaster() {
     const loadData = () => {
         setEmployees(storage.getEmployees());
         const loadedLabels = storage.getLabels();
-        // Filter labels for 'employee' entity
         const employeeLabels = loadedLabels.filter(l => l.targetEntity === 'employee');
         setLabels(employeeLabels);
         if (employeeLabels.length > 0 && !selectedLayoutId) {
@@ -71,15 +68,12 @@ export function EmployeeMaster() {
     };
 
     const handleDelete = (employee: Employee) => {
-        if (window.confirm(`Are you sure you want to delete ${employee.fullName}?`)) {
+        if (window.confirm(`确定要删除 ${employee.fullName} 吗？`)) {
             storage.deleteEmployee(employee.id);
             loadData();
-            // Remove from selection if deleted
             setSelectedEmployeeIds(prev => prev.filter(id => id !== employee.id));
         }
     };
-
-    // --- Export Logic ---
 
     const getSelectedEmployees = () => {
         return employees.filter(e => selectedEmployeeIds.includes(e.id));
@@ -129,10 +123,10 @@ export function EmployeeMaster() {
     };
 
     const columns: Column<Employee>[] = [
-        { header: 'Employee ID', accessorKey: 'employeeId' },
-        { header: 'Full Name', accessorKey: 'fullName' },
-        { header: 'Department', accessorKey: 'department' },
-        { header: 'Join Date', accessorKey: 'joinDate' },
+        { header: '工号', accessorKey: 'employeeId' },
+        { header: '姓名', accessorKey: 'fullName' },
+        { header: '部门', accessorKey: 'department' },
+        { header: '入职日期', accessorKey: 'joinDate' },
     ];
 
     const hasSelection = selectedEmployeeIds.length > 0;
@@ -143,8 +137,8 @@ export function EmployeeMaster() {
             {/* Top Bar: Title & Configuration */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Employee Master</h2>
-                    <p className="text-gray-500">Manage records and print badges</p>
+                    <h2 className="text-2xl font-bold text-gray-900">员工主数据</h2>
+                    <p className="text-gray-500">管理员工记录并打印工牌</p>
                 </div>
 
                 <div className="flex items-center gap-3">
@@ -155,7 +149,7 @@ export function EmployeeMaster() {
                             value={selectedLayoutId}
                             onChange={(e) => setSelectedLayoutId(e.target.value)}
                         >
-                            <option value="" disabled>Select Layout Template</option>
+                            <option value="" disabled>选择布局模板</option>
                             {labels.map(label => (
                                 <option key={label.id} value={label.id}>{label.name}</option>
                             ))}
@@ -170,21 +164,21 @@ export function EmployeeMaster() {
                         className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm cursor-pointer"
                     >
                         <Plus size={18} />
-                        <span className="hidden sm:inline">Add Employee</span>
+                        <span className="hidden sm:inline">添加员工</span>
                     </button>
                 </div>
             </div>
 
-            {/* Info Guide - Only show when no selection is made to guide the user */}
+            {/* Info Guide */}
             {!hasSelection && (
                 <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6 flex items-start gap-3 animate-in fade-in">
                     <Info className="text-blue-600 shrink-0 mt-0.5" size={20} />
                     <div className="text-sm text-blue-900">
-                        <p className="font-semibold">Batch Export Instructions:</p>
+                        <p className="font-semibold">批量导出说明：</p>
                         <ol className="list-decimal ml-4 mt-1 space-y-0.5 text-blue-800">
-                            <li>Select a <strong>Layout Template</strong> from the dropdown above.</li>
-                            <li>Check the box next to one or more employees in the table.</li>
-                            <li>Click the appearing <strong>Export</strong> buttons (PNG, PDF, or ZPL) to generate badges.</li>
+                            <li>从上方下拉菜单中<strong>选择布局模板</strong>。</li>
+                            <li>勾选表格中一个或多个员工。</li>
+                            <li>点击出现的<strong>导出</strong>按钮（PNG、PDF 或 ZPL）生成工牌。</li>
                         </ol>
                     </div>
                 </div>
@@ -195,7 +189,7 @@ export function EmployeeMaster() {
                 <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-6 flex flex-wrap items-center justify-between gap-4 animate-in slide-in-from-top-2">
                     <div className="flex items-center gap-2 text-indigo-900">
                         <span className="font-semibold bg-indigo-100 px-2 py-0.5 rounded text-sm">{selectedEmployeeIds.length}</span>
-                        <span className="font-medium">Selected</span>
+                        <span className="font-medium">已选中</span>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -203,7 +197,7 @@ export function EmployeeMaster() {
                             onClick={handleExportPNG}
                             disabled={!hasLayout}
                             className="flex items-center gap-2 bg-white text-gray-700 hover:text-indigo-600 border border-gray-200 hover:border-indigo-200 px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                            title="Download as PNG Images"
+                            title="下载为 PNG 图片"
                         >
                             <ImageIcon size={16} />
                             PNG
@@ -212,7 +206,7 @@ export function EmployeeMaster() {
                             onClick={handleExportPDF}
                             disabled={!hasLayout}
                             className="flex items-center gap-2 bg-white text-gray-700 hover:text-red-600 border border-gray-200 hover:border-red-200 px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                            title="Download as PDF"
+                            title="下载为 PDF"
                         >
                             <FileText size={16} />
                             PDF
@@ -221,7 +215,7 @@ export function EmployeeMaster() {
                             onClick={handleExportZPL}
                             disabled={!hasLayout}
                             className="flex items-center gap-2 bg-white text-gray-700 hover:text-black border border-gray-200 hover:border-gray-400 px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                            title="Generate ZPL Code"
+                            title="生成 ZPL 代码"
                         >
                             <Printer size={16} />
                             ZPL
@@ -247,7 +241,7 @@ export function EmployeeMaster() {
                         {/* Modal Header */}
                         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
                             <h3 className="text-lg font-semibold text-gray-900">
-                                {editingEmployee ? 'Edit Employee' : 'Add New Employee'}
+                                {editingEmployee ? '编辑员工' : '添加新员工'}
                             </h3>
                             <button
                                 onClick={handleCloseModal}
@@ -260,42 +254,42 @@ export function EmployeeMaster() {
                         {/* Modal Body */}
                         <form onSubmit={handleSave} className="p-6 space-y-4">
                             <div className="space-y-1.5">
-                                <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                                <label className="block text-sm font-medium text-gray-700">姓名</label>
                                 <input
                                     type="text"
                                     required
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                                     value={formData.fullName || ''}
                                     onChange={e => setFormData({ ...formData, fullName: e.target.value })}
-                                    placeholder="e.g. Kashinath Hosapeti"
+                                    placeholder="例如：张三"
                                 />
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="block text-sm font-medium text-gray-700">Employee ID</label>
+                                <label className="block text-sm font-medium text-gray-700">工号</label>
                                 <input
                                     type="text"
                                     required
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                                     value={formData.employeeId || ''}
                                     onChange={e => setFormData({ ...formData, employeeId: e.target.value })}
-                                    placeholder="e.g. EMP-001"
+                                    placeholder="例如：EMP-001"
                                 />
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="block text-sm font-medium text-gray-700">Department</label>
+                                <label className="block text-sm font-medium text-gray-700">部门</label>
                                 <input
                                     type="text"
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                                     value={formData.department || ''}
                                     onChange={e => setFormData({ ...formData, department: e.target.value })}
-                                    placeholder="e.g. Engineering"
+                                    placeholder="例如：工程部"
                                 />
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="block text-sm font-medium text-gray-700">Join Date</label>
+                                <label className="block text-sm font-medium text-gray-700">入职日期</label>
                                 <input
                                     type="date"
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
@@ -311,13 +305,13 @@ export function EmployeeMaster() {
                                     onClick={handleCloseModal}
                                     className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors cursor-pointer"
                                 >
-                                    Cancel
+                                    取消
                                 </button>
                                 <button
                                     type="submit"
                                     className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium shadow-sm transition-colors cursor-pointer"
                                 >
-                                    Save Changes
+                                    保存更改
                                 </button>
                             </div>
                         </form>

@@ -18,14 +18,14 @@ export const LabelList: React.FC<LabelListProps> = ({
 }) => {
 
     const handleDelete = (label: StickerLayout) => {
-        if (confirm(`Are you sure you want to delete "${label.name}"?`)) {
+        if (confirm(`确定要删除 "${label.name}" 吗？`)) {
             onDelete(label.id);
         }
     };
 
     const columns: Column<StickerLayout>[] = [
         {
-            header: 'Template Name',
+            header: '模板名称',
             accessorKey: 'name',
             render: (_val, item) => (
                 <div className="flex items-center gap-3">
@@ -37,17 +37,17 @@ export const LabelList: React.FC<LabelListProps> = ({
             )
         },
         {
-            header: 'Target Entity',
+            header: '目标实体',
             accessorKey: 'targetEntity',
             render: (val: string) => (
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 capitalize border border-gray-200">
                     <Smartphone size={12} />
-                    {val || "None"}
+                    {val || "无"}
                 </span>
             )
         },
         {
-            header: 'Dimensions',
+            header: '尺寸',
             accessorKey: 'width',
             render: (_val, item) => (
                 <span className="text-gray-600 text-sm font-mono">
@@ -56,11 +56,11 @@ export const LabelList: React.FC<LabelListProps> = ({
             )
         },
         {
-            header: 'Elements',
+            header: '元素',
             accessorKey: 'elements',
             render: (val: any[]) => (
                 <span className="bg-gray-50 px-2 py-1 rounded border border-gray-100 text-sm text-gray-600">
-                    {val.length} items
+                    {val.length} 个元素
                 </span>
             )
         }
@@ -71,15 +71,15 @@ export const LabelList: React.FC<LabelListProps> = ({
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Label Templates</h1>
-                    <p className="text-gray-500 mt-1">Design and manage your QR code layouts</p>
+                    <h1 className="text-3xl font-bold text-gray-900 tracking-tight">标签模板</h1>
+                    <p className="text-gray-500 mt-1">设计和管理您的条码布局</p>
                 </div>
                 <button
                     onClick={onCreateNew}
                     className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium transition-all shadow-sm hover:shadow-md active:scale-95 cursor-pointer"
                 >
                     <Plus size={20} />
-                    <span>Create New Label</span>
+                    <span>新建标签</span>
                 </button>
             </div>
 

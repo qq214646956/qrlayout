@@ -13,7 +13,6 @@ interface TableProps<T> {
     keyField: keyof T;
     onEdit?: (item: T) => void;
     onDelete?: (item: T) => void;
-    // Selection Props
     selectedIds?: string[];
     onSelectionChange?: (selectedIds: string[]) => void;
 }
@@ -54,7 +53,7 @@ export function Table<T>({
     if (data.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-12 bg-white rounded-lg border border-dashed border-gray-300">
-                <p className="text-gray-500">No records found</p>
+                <p className="text-gray-500">暂无记录</p>
             </div>
         );
     }
@@ -86,7 +85,7 @@ export function Table<T>({
                             ))}
                             {(onEdit || onDelete) && (
                                 <th className="px-6 py-3 font-semibold border-b border-gray-200 text-right">
-                                    Actions
+                                    操作
                                 </th>
                             )}
                         </tr>
@@ -119,7 +118,7 @@ export function Table<T>({
                                                 <button
                                                     onClick={() => onEdit(item)}
                                                     className="text-blue-600 hover:text-blue-800 p-1.5 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer"
-                                                    title="Edit"
+                                                    title="编辑"
                                                 >
                                                     <Edit2 size={16} />
                                                 </button>
@@ -128,7 +127,7 @@ export function Table<T>({
                                                 <button
                                                     onClick={() => onDelete(item)}
                                                     className="text-red-600 hover:text-red-800 p-1.5 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
-                                                    title="Delete"
+                                                    title="删除"
                                                 >
                                                     <Trash2 size={16} />
                                                 </button>
@@ -161,7 +160,6 @@ export function Table<T>({
                                         />
                                     )}
                                     <div className="flex flex-col gap-1">
-                                        {/* First column usually has primary info */}
                                         {columns.map((col, idx) => (
                                             <div key={idx} className={idx === 0 ? "font-semibold text-gray-900" : "text-sm text-gray-600"}>
                                                 {idx > 0 && <span className="text-gray-400 font-medium mr-1">{col.header}:</span>}

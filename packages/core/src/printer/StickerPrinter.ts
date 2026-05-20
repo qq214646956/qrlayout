@@ -79,6 +79,20 @@ export class StickerPrinter {
             } else if (element.type === "text") {
                 this.drawText(ctx, element, filledContent, x, y, w, h);
             }
+            // Border rendering
+            const st = element.style || {};
+            if (st.borderWidth && st.borderWidth > 0) {
+                ctx.save();
+                ctx.strokeStyle = st.borderColor || "#000000";
+                ctx.lineWidth = st.borderWidth;
+                if (st.borderStyle === "dashed") {
+                    ctx.setLineDash([6, 4]);
+                } else if (st.borderStyle === "dotted") {
+                    ctx.setLineDash([2, 3]);
+                }
+                ctx.strokeRect(x, y, w, h);
+                ctx.restore();
+            }
         }
     }
 

@@ -11,6 +11,11 @@ export interface ElementStyle {
     verticalAlign?: "top" | "middle" | "bottom";
     color?: string;
 
+    // Border
+    borderWidth?: number;
+    borderColor?: string;
+    borderStyle?: "solid" | "dashed" | "dotted";
+
     // General
     backgroundColor?: string;
 }

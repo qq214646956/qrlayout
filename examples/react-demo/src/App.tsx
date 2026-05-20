@@ -5,59 +5,57 @@ import 'qrlayout-ui/style.css';
 import './App.css';
 import { LabelList } from './features/labels/LabelList';
 import { storage } from './services/storage';
-import { ArrowLeft, Tag, Users, Cpu, Home, Package, Github, BookOpen } from 'lucide-react';
+import { ArrowLeft, Tag, Users, Home } from 'lucide-react'; // Cpu, Package, Github, BookOpen - 已移除：设备/库位/源代码/文档
 import { EmployeeMaster } from './features/employees/EmployeeMaster';
-import { MachineMaster } from './features/machines/MachineMaster';
-import { BinMaster } from './features/storage/BinMaster';
+// import { MachineMaster } from './features/machines/MachineMaster'; // 已移除：设备
+// import { BinMaster } from './features/storage/BinMaster'; // 已移除：库位
 import { LandingPage } from './features/home/LandingPage';
-import { DocsPage } from './features/docs/DocsPage';
-
-// ... (Existing SAMPLE_SCHEMAS and DEFAULT_NEW_LAYOUT remain unchanged)
+// import { DocsPage } from './features/docs/DocsPage'; // 已移除：文档
 
 // Sample Schema
 const SAMPLE_SCHEMAS: Record<string, EntitySchema> = {
   employee: {
-    label: "Employee Master",
+    label: "员工主数据",
     fields: [
-      { name: "fullName", label: "Full Name" },
-      { name: "employeeId", label: "Employee ID" },
-      { name: "department", label: "Department" },
-      { name: "joinDate", label: "Join Date" },
+      { name: "fullName", label: "姓名" },
+      { name: "employeeId", label: "工号" },
+      { name: "department", label: "部门" },
+      { name: "joinDate", label: "入职日期" },
     ],
     sampleData: {
-      fullName: "Pavan Kumbar",
+      fullName: "张三",
       employeeId: "EMP-2024-889",
-      department: "Engineering",
+      department: "工程部",
       joinDate: "2024-01-15"
     }
   },
   machine: {
-    label: "Machine Master",
+    label: "设备主数据",
     fields: [
-      { name: "machineName", label: "Machine Name" },
-      { name: "machineCode", label: "Machine Code" },
-      { name: "location", label: "Location" },
-      { name: "model", label: "Model" },
+      { name: "machineName", label: "设备名称" },
+      { name: "machineCode", label: "设备编号" },
+      { name: "location", label: "位置" },
+      { name: "model", label: "型号" },
     ],
     sampleData: {
-      machineName: "CNC Milling Machine",
+      machineName: "CNC 铣床",
       machineCode: "MC-2024-V1",
-      location: "Shop Floor A",
+      location: "车间 A 区",
       model: "XYZ-2000"
     }
   },
   storage: {
-    label: "Storage Master",
+    label: "库位主数据",
     fields: [
-      { name: "binCode", label: "BIN Code" },
-      { name: "storageType", label: "Storage Type" },
-      { name: "aisle", label: "Aisle" },
-      { name: "rack", label: "Rack Number" },
+      { name: "binCode", label: "库位编号" },
+      { name: "storageType", label: "存储类型" },
+      { name: "aisle", label: "货道" },
+      { name: "rack", label: "货架号" },
     ],
     sampleData: {
       binCode: "BIN-A1-R4",
-      storageType: "Pallet Rack",
-      aisle: "Aisle 01",
+      storageType: "托盘货架",
+      aisle: "货道 01",
       rack: "R-44"
     }
   }
@@ -65,7 +63,7 @@ const SAMPLE_SCHEMAS: Record<string, EntitySchema> = {
 
 // Initial Default Layout for New Labels
 const DEFAULT_NEW_LAYOUT: Omit<StickerLayout, 'id'> = {
-  name: "New QR Label",
+  name: "新建标签",
   targetEntity: "employee",
   width: 100,
   height: 60,
@@ -96,13 +94,11 @@ function App() {
   useEffect(() => {
     if (subView !== 'designer' || !containerRef.current) return;
 
-    // Use editingLayout or create a new one
     const initialLayout = editingLayout || {
       ...DEFAULT_NEW_LAYOUT,
       id: crypto.randomUUID()
     };
 
-    // Initialize Designer
     designerRef.current = new QRLayoutDesigner({
       element: containerRef.current,
       entitySchemas: SAMPLE_SCHEMAS,
@@ -161,7 +157,7 @@ function App() {
             className="fixed top-4 left-4 z-[9999] flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium shadow-md transition-all border border-gray-200 cursor-pointer"
           >
             <ArrowLeft size={18} />
-            Back to Labels
+            返回标签列表
           </button>
           <div
             className="designer-container"
@@ -184,10 +180,11 @@ function App() {
                     </div>
                     <div>
                       <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent truncate max-w-[150px] sm:max-w-full">
-                        QR Layout Studio
+                        条码布局设计器
                       </h1>
+                      {/* 已移除：作者 @shashi089
                       <div className="flex items-center gap-2">
-                        <p className="text-[10px] sm:text-xs text-gray-500 hidden sm:block">by</p>
+                        <p className="text-[10px] sm:text-xs text-gray-500 hidden sm:block">作者</p>
                         <a
                           href="https://github.com/shashi089"
                           target="_blank"
@@ -197,13 +194,14 @@ function App() {
                           @shashi089
                         </a>
                       </div>
+                      */}
                     </div>
                   </div>
 
                   {/* Mobile Clear Data Action */}
                   <button
                     onClick={() => {
-                      if (confirm('Are you sure? This will delete all labels and employees.')) {
+                      if (confirm('确定要清空所有数据吗？这将删除所有标签和员工数据。')) {
                         storage.clearAll();
                         setLabels([]);
                         window.location.reload();
@@ -211,7 +209,7 @@ function App() {
                     }}
                     className="lg:hidden text-xs sm:text-sm text-red-600 hover:text-red-800 font-medium px-2 py-1.5 hover:bg-red-50 rounded-lg transition-colors cursor-pointer border border-red-100 whitespace-nowrap"
                   >
-                    Clear Data
+                    清空数据
                   </button>
                 </div>
 
@@ -226,8 +224,9 @@ function App() {
                         }`}
                     >
                       <Home size={18} />
-                      <span className="hidden md:inline">Home</span>
+                      <span className="hidden md:inline">首页</span>
                     </button>
+                    {/* 已移除：文档按钮
                     <button
                       onClick={() => handleMainViewChange('docs')}
                       className={`flex items-center gap-2 px-4 py-2 font-semibold transition-all duration-200 rounded-lg cursor-pointer ${mainView === 'docs'
@@ -236,8 +235,9 @@ function App() {
                         }`}
                     >
                       <BookOpen size={18} />
-                      <span className="hidden sm:inline">Docs</span>
+                      <span className="hidden sm:inline">文档</span>
                     </button>
+                    */}
                     <button
                       onClick={() => handleMainViewChange('labels')}
                       className={`flex items-center gap-2 px-4 py-2 font-semibold transition-all duration-200 rounded-lg cursor-pointer ${mainView === 'labels'
@@ -246,7 +246,7 @@ function App() {
                         }`}
                     >
                       <Tag size={18} />
-                      <span>Labels</span>
+                      <span>标签</span>
                     </button>
                     <button
                       onClick={() => handleMainViewChange('employees')}
@@ -256,8 +256,9 @@ function App() {
                         }`}
                     >
                       <Users size={18} />
-                      <span>Employees</span>
+                      <span>员工</span>
                     </button>
+                    {/* 已移除：设备按钮
                     <button
                       onClick={() => handleMainViewChange('machines')}
                       className={`flex items-center gap-2 px-4 py-2 font-semibold transition-all duration-200 rounded-lg cursor-pointer ${mainView === 'machines'
@@ -266,8 +267,10 @@ function App() {
                         }`}
                     >
                       <Cpu size={18} />
-                      <span className="hidden md:inline">Machines</span>
+                      <span className="hidden md:inline">设备</span>
                     </button>
+                    */}
+                    {/* 已移除：库位按钮
                     <button
                       onClick={() => handleMainViewChange('storage')}
                       className={`flex items-center gap-2 px-4 py-2 font-semibold transition-all duration-200 rounded-lg cursor-pointer ${mainView === 'storage'
@@ -276,14 +279,16 @@ function App() {
                         }`}
                     >
                       <Package size={18} />
-                      <span className="hidden sm:inline">Storage</span>
+                      <span className="hidden sm:inline">库位</span>
                     </button>
-                    
+                    */}
+
                   </nav>
                 </div>
 
                 {/* Desktop Actions */}
                 <div className="hidden lg:flex items-center gap-3">
+                  {/* 已移除：源代码按钮
                   <a
                     href="https://github.com/shashi089/qr-code-layout-generate-tool"
                     target="_blank"
@@ -291,11 +296,12 @@ function App() {
                     className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 font-medium px-3 py-1.5 hover:bg-gray-50 rounded-lg transition-colors border border-gray-200"
                   >
                     <Github size={18} />
-                    <span>Source Code</span>
+                    <span>源代码</span>
                   </a>
+                  */}
                   <button
                     onClick={() => {
-                      if (confirm('Are you sure? This will delete all labels and employees.')) {
+                      if (confirm('确定要清空所有数据吗？这将删除所有标签和员工数据。')) {
                         storage.clearAll();
                         setLabels([]);
                         window.location.reload();
@@ -303,7 +309,7 @@ function App() {
                     }}
                     className="text-sm text-red-600 hover:text-red-800 font-medium px-3 py-1.5 hover:bg-red-50 rounded-lg transition-colors cursor-pointer border border-red-100 whitespace-nowrap"
                   >
-                    Clear Data
+                    清空数据
                   </button>
                 </div>
               </div>
@@ -322,13 +328,7 @@ function App() {
             />
           ) : mainView === 'employees' ? (
             <EmployeeMaster />
-          ) : mainView === 'machines' ? (
-            <MachineMaster />
-          ) : mainView === 'docs' ? (
-            <DocsPage />
-          ) : (
-            <BinMaster />
-          )}
+          ) : null /* 已移除：machines → <MachineMaster />, docs → <DocsPage />, storage → <BinMaster /> */}
         </>
       )}
     </div>
