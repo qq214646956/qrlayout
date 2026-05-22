@@ -1,6 +1,6 @@
 export type Unit = "mm" | "px" | "cm" | "in";
 
-export type ElementType = "text" | "qr";
+export type ElementType = "text" | "qr" | "barcode";
 
 export interface ElementStyle {
     // Text specific
@@ -37,6 +37,9 @@ export interface StickerElement {
 
     // Optional separator for multi-element QR codes
     qrSeparator?: string;
+
+    // Barcode format (e.g. "CODE128", "EAN13", "UPC")
+    barcodeFormat?: string;
 
     style?: ElementStyle;
 }

@@ -1,5 +1,6 @@
 import { StickerLayout, StickerElement, StickerData, ImageFormat } from "../layout/schema";
 import { generateQR } from "../qr/generator";
+import { generateBarcode } from "../barcode/generator";
 import type { PdfDoc } from "../pdf";
 
 export interface DataUrlOptions {
@@ -75,6 +76,11 @@ export class StickerPrinter {
                 if (filledContent) {
                     const qrUrl = await generateQR(filledContent);
                     await this.drawImage(ctx, qrUrl, x, y, w, h);
+                }
+            } else if (element.type === "barcode") {
+                if (filledContent) {
+                    const barcodeUrl = await generateBarcode(filledContent, element.barcodeFormat || "CODE128");
+                    await this.drawImage(ctx, barcodeUrl, x, y, w, h);
                 }
             } else if (element.type === "text") {
                 this.drawText(ctx, element, filledContent, x, y, w, h);
@@ -226,15 +232,17 @@ export class StickerPrinter {
                 zpl += `^FO${x},${y}`;
 
                 if (element.type === "text") {
-                    // Font mapping is tricky. We'll use Scalable Font 0 (^A0)
-                    // Height in dots.
                     const style = element.style || {};
                     const fontSizePt = style.fontSize || 12;
-                    // Approximate pt to dots conversion (1 pt = 1/72 inch). 203 DPI.
-                    // dots = pt * (203/72) ~ pt * 2.8
                     const fontHeightDots = Math.round(fontSizePt * 2.8);
 
                     zpl += `^A0N,${fontHeightDots},${fontHeightDots}`;
+                    zpl += `^FD${filledContent}^FS\n`;
+                }
+                else if (element.type === "barcode") {
+                    const h = toDots(element.h, layout.unit);
+                    zpl += `^BY2,2.0,${h}`;
+                    zpl += `^BCN,,N,N,N,N`;
                     zpl += `^FD${filledContent}^FS\n`;
                 }
                 else if (element.type === "qr") {

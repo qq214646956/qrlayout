@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import { StickerLayout, StickerData } from "./layout/schema";
 import { generateQR } from "./qr/generator";
+import { generateBarcode } from "./barcode/generator";
 
 export type PdfDoc = InstanceType<typeof jsPDF>;
 
@@ -75,6 +76,11 @@ export async function exportToPDF(
         if (filledContent) {
           const qrUrl = await generateQR(filledContent);
           doc.addImage(qrUrl, "PNG", x, y, w, h);
+        }
+      } else if (element.type === "barcode") {
+        if (filledContent) {
+          const barcodeUrl = await generateBarcode(filledContent, element.barcodeFormat || "CODE128");
+          doc.addImage(barcodeUrl, "PNG", x, y, w, h);
         }
       } else if (element.type === "text") {
         const style = element.style || {};

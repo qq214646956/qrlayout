@@ -160,6 +160,7 @@ export class QRLayoutDesigner {
                             <div style="display: flex; gap: 6px">
                                 <button class="btn btn-outline btn-sm" data-action="add-text" title="添加文本">+ 文本</button>
                                 <button class="btn btn-outline btn-sm" data-action="add-qr" title="添加二维码">+ 二维码</button>
+                                <button class="btn btn-outline btn-sm" data-action="add-barcode" title="添加条形码">+ 条码</button>
                             </div>
                         </div>
                         <div data-el="elements-container" class="element-list" style="margin-top: 8px;"></div>
@@ -359,6 +360,13 @@ export class QRLayoutDesigner {
             this.updatePreview();
         });
 
+        this.container.querySelector('[data-action="add-barcode"]')?.addEventListener('click', () => {
+            const id = "b" + Date.now();
+            this.currentLayout.elements.push({ id, type: 'barcode', x: 5, y: 5, w: 50, h: 15, content: "{{MATNR}}", barcodeFormat: "CODE128" });
+            this.selectElement(id);
+            this.updatePreview();
+        });
+
         this.container.querySelector('[data-action="delete-element"]')?.addEventListener('click', () => {
             this.currentLayout.elements = this.currentLayout.elements.filter(e => e.id !== this.selectedElementId);
             this.selectElement(null);
@@ -502,6 +510,16 @@ export class QRLayoutDesigner {
                 <label>字段分隔符</label>
                 <input type="text" id="prop-qr-separator" placeholder="例如 | 或 -" value="${el.qrSeparator || ''}">
                 ` : ''}
+                ${el.type === 'barcode' ? `
+                <label>条码格式</label>
+                <select id="prop-barcode-format">
+                    <option value="CODE128" ${(el.barcodeFormat || 'CODE128') === 'CODE128' ? 'selected' : ''}>CODE128</option>
+                    <option value="EAN13" ${el.barcodeFormat === 'EAN13' ? 'selected' : ''}>EAN13</option>
+                    <option value="UPC" ${el.barcodeFormat === 'UPC' ? 'selected' : ''}>UPC</option>
+                    <option value="CODE39" ${el.barcodeFormat === 'CODE39' ? 'selected' : ''}>CODE39</option>
+                    <option value="ITF" ${el.barcodeFormat === 'ITF' ? 'selected' : ''}>ITF-14</option>
+                </select>
+                ` : ''}
                 <label>内容</label>
                 <textarea data-prop="content-val" rows="2">${el.content}</textarea>
                 <div class="field-buttons" data-el="field-suggestions"></div>
@@ -571,6 +589,14 @@ export class QRLayoutDesigner {
         if (sepInput) {
             sepInput.addEventListener("input", (e) => {
                 el.qrSeparator = (e.target as HTMLInputElement).value;
+                this.updatePreview();
+            });
+        }
+
+        const barcodeFormatSelect = this.propContent.querySelector("#prop-barcode-format");
+        if (barcodeFormatSelect) {
+            barcodeFormatSelect.addEventListener("change", (e) => {
+                el.barcodeFormat = (e.target as HTMLSelectElement).value;
                 this.updatePreview();
             });
         }

@@ -5,58 +5,80 @@ import 'qrlayout-ui/style.css';
 import './App.css';
 import { LabelList } from './features/labels/LabelList';
 import { storage } from './services/storage';
-import { ArrowLeft, Tag, Users, Home } from 'lucide-react'; // Cpu, Package, Github, BookOpen - 已移除：设备/库位/源代码/文档
+import { ArrowLeft, Tag, Truck, Home } from 'lucide-react';
 import { EmployeeMaster } from './features/employees/EmployeeMaster';
 // import { MachineMaster } from './features/machines/MachineMaster'; // 已移除：设备
 // import { BinMaster } from './features/storage/BinMaster'; // 已移除：库位
 import { LandingPage } from './features/home/LandingPage';
 // import { DocsPage } from './features/docs/DocsPage'; // 已移除：文档
 
-// Sample Schema
+// Sample Schema - 出货主数据（字段来源：SAP RFC ZFM_ZSDELIVERY_DETAILS）
 const SAMPLE_SCHEMAS: Record<string, EntitySchema> = {
-  employee: {
-    label: "员工主数据",
+  delivery: {
+    label: "出货主数据",
     fields: [
-      { name: "fullName", label: "姓名" },
-      { name: "employeeId", label: "工号" },
-      { name: "department", label: "部门" },
-      { name: "joinDate", label: "入职日期" },
+      { name: "VBELN", label: "交货单号" },
+      { name: "POSNR", label: "交货单行号" },
+      { name: "VGBEL", label: "销售凭证" },
+      { name: "VGPOS", label: "销售凭证项目号" },
+      { name: "WADAT_IST", label: "过账日期" },
+      { name: "ERDAT", label: "创建日期" },
+      { name: "MATNR", label: "物料编码" },
+      { name: "MAKTX", label: "物料描述" },
+      { name: "PM", label: "品名" },
+      { name: "GROES", label: "规格型号" },
+      { name: "KDMAT", label: "客户物料" },
+      { name: "ARKTX", label: "销售订单项目短文本" },
+      { name: "LFIMG", label: "实际已交系统重量" },
+      { name: "LFIMG_HY", label: "实际已交行业重量" },
+      { name: "MEINS", label: "单位" },
+      { name: "CHARG", label: "批次编号" },
+      { name: "ZFZSL", label: "辅助数量" },
+      { name: "ZFZDW", label: "辅助单位" },
+      { name: "ZBZCD", label: "标长(M)" },
+      { name: "ZBZKD", label: "标宽（MM）" },
+      { name: "ZBZHD", label: "标厚（MM）" },
+      { name: "ZBZBZ", label: "比重" },
+      { name: "ZBZZL", label: "标重" },
+      { name: "ZHYZL", label: "行重" },
+      { name: "ZBZCD2", label: "行业长度(M)" },
+      { name: "ZBZKD2", label: "行业宽度（MM）" },
+      { name: "KUNNR", label: "客户编码" },
+      { name: "NAME1", label: "客户名称" },
+      { name: "SORTL", label: "客户简称" },
+      { name: "USERNAME", label: "过账人" },
     ],
     sampleData: {
-      fullName: "张三",
-      employeeId: "EMP-2024-889",
-      department: "工程部",
-      joinDate: "2024-01-15"
-    }
-  },
-  machine: {
-    label: "设备主数据",
-    fields: [
-      { name: "machineName", label: "设备名称" },
-      { name: "machineCode", label: "设备编号" },
-      { name: "location", label: "位置" },
-      { name: "model", label: "型号" },
-    ],
-    sampleData: {
-      machineName: "CNC 铣床",
-      machineCode: "MC-2024-V1",
-      location: "车间 A 区",
-      model: "XYZ-2000"
-    }
-  },
-  storage: {
-    label: "库位主数据",
-    fields: [
-      { name: "binCode", label: "库位编号" },
-      { name: "storageType", label: "存储类型" },
-      { name: "aisle", label: "货道" },
-      { name: "rack", label: "货架号" },
-    ],
-    sampleData: {
-      binCode: "BIN-A1-R4",
-      storageType: "托盘货架",
-      aisle: "货道 01",
-      rack: "R-44"
+      VBELN: "0080000123",
+      POSNR: "000010",
+      VGBEL: "0001000123",
+      VGPOS: "000010",
+      WADAT_IST: "2026-05-21",
+      ERDAT: "2026-05-20",
+      MATNR: "3001-00001-00003",
+      MAKTX: "铜带&0.5×200×C1100",
+      PM: "铜带",
+      GROES: "0.5×200",
+      KDMAT: "CUST-MAT-001",
+      ARKTX: "铜带 C1100",
+      LFIMG: "1250.000",
+      LFIMG_HY: "1000.000",
+      MEINS: "KG",
+      CHARG: "20260501",
+      ZFZSL: "4",
+      ZFZDW: "ROL",
+      ZBZCD: "200",
+      ZBZKD: "0.5",
+      ZBZHD: "0.01",
+      ZBZBZ: "8.9",
+      ZBZZL: "250",
+      ZHYZL: "0.8",
+      ZBZCD2: "200",
+      ZBZKD2: "0.5",
+      KUNNR: "0000100001",
+      NAME1: "地博铜业有限公司",
+      SORTL: "地博铜业",
+      USERNAME: "IT01",
     }
   }
 };
@@ -64,7 +86,7 @@ const SAMPLE_SCHEMAS: Record<string, EntitySchema> = {
 // Initial Default Layout for New Labels
 const DEFAULT_NEW_LAYOUT: Omit<StickerLayout, 'id'> = {
   name: "新建标签",
-  targetEntity: "employee",
+  targetEntity: "delivery",
   width: 100,
   height: 60,
   unit: "mm",
@@ -198,18 +220,15 @@ function App() {
                     </div>
                   </div>
 
-                  {/* Mobile Clear Data Action */}
+                  {/* Mobile Clear Cache */}
                   <button
                     onClick={() => {
-                      if (confirm('确定要清空所有数据吗？这将删除所有标签和员工数据。')) {
-                        storage.clearAll();
-                        setLabels([]);
-                        window.location.reload();
-                      }
+                      localStorage.removeItem('delivery_data_cache');
+                      window.location.reload();
                     }}
-                    className="lg:hidden text-xs sm:text-sm text-red-600 hover:text-red-800 font-medium px-2 py-1.5 hover:bg-red-50 rounded-lg transition-colors cursor-pointer border border-red-100 whitespace-nowrap"
+                    className="lg:hidden text-xs sm:text-sm text-gray-500 hover:text-gray-700 font-medium px-2 py-1.5 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer border border-gray-200 whitespace-nowrap"
                   >
-                    清空数据
+                    清空查询
                   </button>
                 </div>
 
@@ -255,8 +274,8 @@ function App() {
                         : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
                         }`}
                     >
-                      <Users size={18} />
-                      <span>员工</span>
+                      <Truck size={18} />
+                      <span>出货数据</span>
                     </button>
                     {/* 已移除：设备按钮
                     <button
@@ -301,15 +320,12 @@ function App() {
                   */}
                   <button
                     onClick={() => {
-                      if (confirm('确定要清空所有数据吗？这将删除所有标签和员工数据。')) {
-                        storage.clearAll();
-                        setLabels([]);
-                        window.location.reload();
-                      }
+                      localStorage.removeItem('delivery_data_cache');
+                      window.location.reload();
                     }}
-                    className="text-sm text-red-600 hover:text-red-800 font-medium px-3 py-1.5 hover:bg-red-50 rounded-lg transition-colors cursor-pointer border border-red-100 whitespace-nowrap"
+                    className="text-sm text-gray-500 hover:text-gray-700 font-medium px-3 py-1.5 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer border border-gray-200 whitespace-nowrap"
                   >
-                    清空数据
+                    清空查询
                   </button>
                 </div>
               </div>

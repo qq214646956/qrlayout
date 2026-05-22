@@ -158,47 +158,23 @@ export const storage = {
         if (storage.getLabels().length === 0) {
             storage.saveLabels([
                 {
-                    id: 'default-emp-layout',
-                    name: '员工工牌',
-                    targetEntity: 'employee',
-                    width: 85.6,
-                    height: 53.98,
-                    unit: 'mm',
-                    backgroundColor: '#ffffff',
-                    elements: [
-                        { id: 'e1', type: 'text', x: 30, y: 10, w: 50, h: 10, content: '{{fullName}}', style: { fontSize: 18, fontWeight: 'bold' } },
-                        { id: 'e2', type: 'text', x: 30, y: 20, w: 50, h: 8, content: '{{employeeId}}', style: { fontSize: 12 } },
-                        { id: 'e3', type: 'text', x: 30, y: 28, w: 50, h: 6, content: '{{department}}', style: { fontSize: 10, color: '#666666' } },
-                        { id: 'e4', type: 'qr', x: 5, y: 10, w: 22, h: 22, content: 'emp:{{employeeId}}' }
-                    ]
-                },
-                {
-                    id: 'default-machine-layout',
-                    name: '设备资产标签',
-                    targetEntity: 'machine',
-                    width: 60,
-                    height: 30,
-                    unit: 'mm',
-                    backgroundColor: '#f8fafc',
-                    elements: [
-                        { id: 'm1', type: 'text', x: 25, y: 5, w: 32, h: 5, content: '工业公司资产', style: { fontSize: 8, fontWeight: 'bold' } },
-                        { id: 'm2', type: 'text', x: 25, y: 12, w: 32, h: 8, content: '{{machineName}}', style: { fontSize: 14, fontWeight: 'bold' } },
-                        { id: 'm3', type: 'text', x: 25, y: 22, w: 32, h: 6, content: '编号: {{machineCode}}', style: { fontSize: 10 } },
-                        { id: 'm4', type: 'qr', x: 3, y: 5, w: 20, h: 20, content: 'asset:{{machineCode}}' }
-                    ]
-                },
-                {
-                    id: 'default-storage-layout',
-                    name: '库位标签',
-                    targetEntity: 'storage',
+                    id: 'default-delivery-layout',
+                    name: '出货标签',
+                    targetEntity: 'delivery',
                     width: 100,
-                    height: 50,
+                    height: 70,
                     unit: 'mm',
                     backgroundColor: '#ffffff',
                     elements: [
-                        { id: 'b1', type: 'text', x: 10, y: 10, w: 50, h: 8, content: '货道: {{aisle}}', style: { fontSize: 12 } },
-                        { id: 'b2', type: 'text', x: 10, y: 25, w: 80, h: 20, content: '{{binCode}}', style: { fontSize: 32, fontWeight: 'bold' } },
-                        { id: 'b4', type: 'qr', x: 65, y: 10, w: 30, h: 30, content: 'storage:{{binCode}}' }
+                        { id: 'd1', type: 'text', x: 30, y: 5, w: 65, h: 6, content: '{{NAME1}}', style: { fontSize: 10, fontWeight: 'bold' } },
+                        { id: 'd2', type: 'text', x: 30, y: 13, w: 65, h: 8, content: '{{MAKTX}}', style: { fontSize: 14, fontWeight: 'bold' } },
+                        { id: 'd3', type: 'text', x: 30, y: 24, w: 35, h: 6, content: '单号: {{VBELN}}', style: { fontSize: 9 } },
+                        { id: 'd4', type: 'text', x: 30, y: 32, w: 35, h: 6, content: '数量: {{LFIMG}} {{MEINS}}', style: { fontSize: 9 } },
+                        { id: 'd5', type: 'text', x: 30, y: 40, w: 35, h: 6, content: '批次: {{CHARG}}', style: { fontSize: 9 } },
+                        { id: 'd6', type: 'text', x: 30, y: 48, w: 65, h: 6, content: '规格: {{ZBZCD}}×{{ZBZKD}}×{{ZBZHD}}mm', style: { fontSize: 9 } },
+                        { id: 'd7', type: 'text', x: 30, y: 56, w: 65, h: 6, content: '重量: {{ZBZZL}}kg 含油: {{ZHYZL}}%', style: { fontSize: 9 } },
+                        { id: 'd8', type: 'qr', x: 5, y: 15, w: 22, h: 22, content: '{{VBELN}}' },
+                        { id: 'd9', type: 'text', x: 5, y: 40, w: 22, h: 5, content: '{{PM}}', style: { fontSize: 7, textAlign: 'center' } }
                     ]
                 }
             ]);
