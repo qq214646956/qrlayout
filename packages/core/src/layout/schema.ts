@@ -1,6 +1,6 @@
 export type Unit = "mm" | "px" | "cm" | "in";
 
-export type ElementType = "text" | "qr" | "barcode";
+export type ElementType = "text" | "qr" | "barcode" | "image";
 
 export interface ElementStyle {
     // Text specific

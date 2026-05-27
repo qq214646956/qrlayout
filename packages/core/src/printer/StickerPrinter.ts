@@ -82,6 +82,10 @@ export class StickerPrinter {
                     const barcodeUrl = await generateBarcode(filledContent, element.barcodeFormat || "CODE128");
                     await this.drawImage(ctx, barcodeUrl, x, y, w, h);
                 }
+            } else if (element.type === "image") {
+                if (element.content) {
+                    await this.drawImage(ctx, element.content, x, y, w, h);
+                }
             } else if (element.type === "text") {
                 this.drawText(ctx, element, filledContent, x, y, w, h);
             }
@@ -238,6 +242,9 @@ export class StickerPrinter {
 
                     zpl += `^A0N,${fontHeightDots},${fontHeightDots}`;
                     zpl += `^FD${filledContent}^FS\n`;
+                }
+                else if (element.type === "image") {
+                    // ZPL image embedding not supported — skip
                 }
                 else if (element.type === "barcode") {
                     const h = toDots(element.h, layout.unit);

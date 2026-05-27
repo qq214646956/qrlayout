@@ -161,6 +161,8 @@ export class QRLayoutDesigner {
                                 <button class="btn btn-outline btn-sm" data-action="add-text" title="添加文本">+ 文本</button>
                                 <button class="btn btn-outline btn-sm" data-action="add-qr" title="添加二维码">+ 二维码</button>
                                 <button class="btn btn-outline btn-sm" data-action="add-barcode" title="添加条形码">+ 条码</button>
+                                <button class="btn btn-outline btn-sm" data-action="add-image" title="添加图片">+ 图片</button>
+                                <input type="file" id="image-file-input" accept="image/*" style="display:none">
                             </div>
                         </div>
                         <div data-el="elements-container" class="element-list" style="margin-top: 8px;"></div>
@@ -367,6 +369,24 @@ export class QRLayoutDesigner {
             this.updatePreview();
         });
 
+        const imageInput = this.container.querySelector('#image-file-input') as HTMLInputElement;
+        this.container.querySelector('[data-action="add-image"]')?.addEventListener('click', () => {
+            imageInput?.click();
+        });
+        imageInput?.addEventListener('change', () => {
+            const file = imageInput.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                const id = "i" + Date.now();
+                this.currentLayout.elements.push({ id, type: 'image', x: 5, y: 5, w: 25, h: 25, content: reader.result as string });
+                this.selectElement(id);
+                this.updatePreview();
+                imageInput.value = '';
+            };
+            reader.readAsDataURL(file);
+        });
+
         this.container.querySelector('[data-action="delete-element"]')?.addEventListener('click', () => {
             this.currentLayout.elements = this.currentLayout.elements.filter(e => e.id !== this.selectedElementId);
             this.selectElement(null);
@@ -463,10 +483,23 @@ export class QRLayoutDesigner {
         this.currentLayout.elements.forEach(el => {
             const div = document.createElement("div");
             div.className = `element-item ${this.selectedElementId === el.id ? "active" : ""}`;
+            let label = el.type.toUpperCase();
+            let sub = String(el.content).substring(0, 20);
+            if (el.type === 'barcode') {
+                label = '条形码';
+                sub = el.barcodeFormat || 'CODE128';
+            } else if (el.type === 'image') {
+                label = '图片';
+                sub = '点击选择图片';
+            } else if (el.type === 'qr') {
+                label = '二维码';
+            } else if (el.type === 'text') {
+                label = '文本';
+            }
             div.innerHTML = `
                 <div class="element-info">
-                    <span class="element-name">${el.type.toUpperCase()}</span>
-                    <span class="element-sub">${String(el.content).substring(0, 20)}</span>
+                    <span class="element-name">${label}</span>
+                    <span class="element-sub">${sub}</span>
                 </div>
             `;
             div.onclick = () => this.selectElement(el.id);
@@ -532,6 +565,28 @@ export class QRLayoutDesigner {
                 <div class="form-group" style="flex:1;"><label>宽度</label><input type="number" step="0.01" data-prop="w" value="${el.w.toFixed(2)}"></div>
                 <div class="form-group" style="flex:1;"><label>高度</label><input type="number" step="0.01" data-prop="h" value="${el.h.toFixed(2)}"></div>
             </div>
+            <div style="height: 1px; background: var(--border-color); margin: 16px 0;"></div>
+            <div class="form-group" style="margin-bottom:8px;"><label style="font-size:0.7rem;color:var(--text-secondary)">边框设置</label></div>
+            <div class="form-row">
+                <div class="form-group" style="flex:1;">
+                    <label>边框宽度</label>
+                    <input type="number" data-prop="borderWidth" value="${el.style?.borderWidth || 0}" min="0" step="0.5">
+                </div>
+                <div class="form-group" style="flex:1;">
+                    <label>边框颜色</label>
+                    <input type="color" data-prop="borderColor" value="${el.style?.borderColor || '#000000'}" style="height:32px;">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>边框样式</label>
+                <select data-prop="borderStyle">
+                    <option value="solid" ${(el.style?.borderStyle||'solid')==='solid'?'selected':''}>实线</option>
+                    <option value="dashed" ${el.style?.borderStyle==='dashed'?'selected':''}>虚线</option>
+                    <option value="dotted" ${el.style?.borderStyle==='dotted'?'selected':''}>点线</option>
+                </select>
+            </div>
+            ${el.type === 'text' ? `
+                <div style="height: 1px; background: var(--border-color); margin: 16px 0;"></div>` : ''}
             ${el.type === 'text' ? `
                 <div style="height: 1px; background: var(--border-color); margin: 16px 0;"></div>
                 <div class="form-row">
@@ -626,6 +681,9 @@ export class QRLayoutDesigner {
         link("h", "h", true);
         link("fontSize", "style", true, "fontSize");
         link("fontWeight", "style", false, "fontWeight");
+        link("borderWidth", "style", true, "borderWidth");
+        link("borderColor", "style", false, "borderColor");
+        link("borderStyle", "style", false, "borderStyle");
 
         this.propContent.querySelectorAll(".prop-align-h").forEach(btn => {
             btn.addEventListener("click", () => {

@@ -1,6 +1,7 @@
 import type { StickerLayout } from 'qrlayout-ui';
 
-const STORAGE_KEY = 'qr_labels_data';
+const API_BASE = window.location.port === '5173' ? 'http://localhost:5000' : '';
+
 const EMPLOYEE_STORAGE_KEY = 'employee_data';
 const MACHINE_STORAGE_KEY = 'machine_data';
 const BIN_STORAGE_KEY = 'bin_data';
@@ -30,32 +31,38 @@ export interface Bin {
 }
 
 export const storage = {
-    getLabels: (): StickerLayout[] => {
-        const data = localStorage.getItem(STORAGE_KEY);
-        return data ? JSON.parse(data) : [];
-    },
-
-    saveLabels: (labels: StickerLayout[]): void => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(labels));
-    },
-
-    addLabel: (label: StickerLayout): void => {
-        const labels = storage.getLabels();
-        const index = labels.findIndex(l => l.id === label.id);
-        if (index >= 0) {
-            labels[index] = label;
-        } else {
-            labels.push(label);
+    // Template API (MySQL via Flask)
+    getLabels: async (): Promise<StickerLayout[]> => {
+        try {
+            const res = await fetch(`${API_BASE}/api/templates`);
+            const json = await res.json();
+            return json.success ? json.data : [];
+        } catch {
+            return [];
         }
-        storage.saveLabels(labels);
     },
 
-    deleteLabel: (id: string): void => {
-        const labels = storage.getLabels().filter(l => l.id !== id);
-        storage.saveLabels(labels);
+    addLabel: async (label: StickerLayout): Promise<void> => {
+        try {
+            const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+            const operator = user.display_name || '';
+            await fetch(`${API_BASE}/api/templates?operator=${encodeURIComponent(operator)}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(label),
+            });
+        } catch {}
     },
 
-    // Employee functions
+    deleteLabel: async (id: string): Promise<void> => {
+        try {
+            const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+            const operator = user.display_name || '';
+            await fetch(`${API_BASE}/api/templates/${id}?operator=${encodeURIComponent(operator)}`, { method: 'DELETE' });
+        } catch {}
+    },
+
+    // Employee functions (localStorage)
     getEmployees: (): Employee[] => {
         const data = localStorage.getItem(EMPLOYEE_STORAGE_KEY);
         return data ? JSON.parse(data) : [];
@@ -68,11 +75,8 @@ export const storage = {
     addEmployee: (employee: Employee): void => {
         const employees = storage.getEmployees();
         const index = employees.findIndex(e => e.id === employee.id);
-        if (index >= 0) {
-            employees[index] = employee;
-        } else {
-            employees.push(employee);
-        }
+        if (index >= 0) { employees[index] = employee; }
+        else { employees.push(employee); }
         storage.saveEmployees(employees);
     },
 
@@ -81,7 +85,7 @@ export const storage = {
         storage.saveEmployees(employees);
     },
 
-    // Machine functions
+    // Machine functions (localStorage)
     getMachines: (): Machine[] => {
         const data = localStorage.getItem(MACHINE_STORAGE_KEY);
         return data ? JSON.parse(data) : [];
@@ -94,11 +98,8 @@ export const storage = {
     addMachine: (machine: Machine): void => {
         const machines = storage.getMachines();
         const index = machines.findIndex(m => m.id === machine.id);
-        if (index >= 0) {
-            machines[index] = machine;
-        } else {
-            machines.push(machine);
-        }
+        if (index >= 0) { machines[index] = machine; }
+        else { machines.push(machine); }
         storage.saveMachines(machines);
     },
 
@@ -107,7 +108,7 @@ export const storage = {
         storage.saveMachines(machines);
     },
 
-    // Bin functions
+    // Bin functions (localStorage)
     getBins: (): Bin[] => {
         const data = localStorage.getItem(BIN_STORAGE_KEY);
         return data ? JSON.parse(data) : [];
@@ -120,11 +121,8 @@ export const storage = {
     addBin: (bin: Bin): void => {
         const bins = storage.getBins();
         const index = bins.findIndex(b => b.id === bin.id);
-        if (index >= 0) {
-            bins[index] = bin;
-        } else {
-            bins.push(bin);
-        }
+        if (index >= 0) { bins[index] = bin; }
+        else { bins.push(bin); }
         storage.saveBins(bins);
     },
 
@@ -133,31 +131,28 @@ export const storage = {
         storage.saveBins(bins);
     },
 
-    initializeDefaults: (): void => {
-        if (storage.getEmployees().length === 0) {
-            storage.saveEmployees([
-                { id: '1', fullName: '张三', employeeId: 'EMP-001', department: '运营部', joinDate: '2023-01-10' },
-                { id: '2', fullName: '李四', employeeId: 'EMP-002', department: '工程部', joinDate: '2023-03-15' },
-                { id: '3', fullName: '王五', employeeId: 'EMP-003', department: '物流部', joinDate: '2023-06-20' }
-            ]);
+    initializeDefaults: async (): Promise<void> => {
+        // Migrate old localStorage templates to MySQL (one-time)
+        const migrated = localStorage.getItem('templates_migrated');
+        if (!migrated) {
+            const oldData = localStorage.getItem('qr_labels_data');
+            if (oldData) {
+                try {
+                    const oldLabels = JSON.parse(oldData);
+                    for (const label of oldLabels) {
+                        await storage.addLabel(label as any);
+                    }
+                    localStorage.removeItem('qr_labels_data');
+                } catch {}
+            }
+            localStorage.setItem('templates_migrated', '1');
         }
-        if (storage.getMachines().length === 0) {
-            storage.saveMachines([
-                { id: 'm1', machineName: 'CNC 雕刻机 X1', machineCode: 'CNC-01', location: 'A 区', model: '2024-Pro' },
-                { id: 'm2', machineName: '工业 3D 打印机', machineCode: 'PRN-01', location: '设计实验室', model: 'Gen-3' },
-                { id: 'm3', machineName: '液压冲床', machineCode: 'PRS-05', location: 'B 层', model: '重型' }
-            ]);
-        }
-        if (storage.getBins().length === 0) {
-            storage.saveBins([
-                { id: 'b1', binCode: 'BIN-A1-R1', storageType: '托盘货架', aisle: '货道 01', rack: 'R1' },
-                { id: 'b2', binCode: 'BIN-A1-R2', storageType: '轻型货架', aisle: '货道 01', rack: 'R2' },
-                { id: 'b3', binCode: 'BIN-B2-R1', storageType: '冷藏库', aisle: '货道 02', rack: 'R1' }
-            ]);
-        }
-        if (storage.getLabels().length === 0) {
-            storage.saveLabels([
-                {
+
+        // Seed default template if MySQL is empty
+        try {
+            const labels = await storage.getLabels();
+            if (labels.length === 0) {
+                await storage.addLabel({
                     id: 'default-delivery-layout',
                     name: '出货标签',
                     targetEntity: 'delivery',
@@ -176,13 +171,12 @@ export const storage = {
                         { id: 'd8', type: 'qr', x: 5, y: 15, w: 22, h: 22, content: '{{VBELN}}' },
                         { id: 'd9', type: 'text', x: 5, y: 40, w: 22, h: 5, content: '{{PM}}', style: { fontSize: 7, textAlign: 'center' } }
                     ]
-                }
-            ]);
-        }
+                } as any);
+            }
+        } catch {}
     },
 
     clearAll: (): void => {
-        localStorage.removeItem(STORAGE_KEY);
         localStorage.removeItem(EMPLOYEE_STORAGE_KEY);
         localStorage.removeItem(MACHINE_STORAGE_KEY);
         localStorage.removeItem(BIN_STORAGE_KEY);

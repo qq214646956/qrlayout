@@ -5,12 +5,12 @@ import 'qrlayout-ui/style.css';
 import './App.css';
 import { LabelList } from './features/labels/LabelList';
 import { storage } from './services/storage';
-import { ArrowLeft, Tag, Truck, Home } from 'lucide-react';
+import { ArrowLeft, Tag, Truck, Home, Users, LogOut, History } from 'lucide-react';
 import { EmployeeMaster } from './features/employees/EmployeeMaster';
-// import { MachineMaster } from './features/machines/MachineMaster'; // 已移除：设备
-// import { BinMaster } from './features/storage/BinMaster'; // 已移除：库位
 import { LandingPage } from './features/home/LandingPage';
-// import { DocsPage } from './features/docs/DocsPage'; // 已移除：文档
+import { LoginPage, type UserInfo } from './features/auth/LoginPage';
+import { UserManagePage } from './features/auth/UserManagePage';
+import { TemplateLogPage } from './features/auth/TemplateLogPage';
 
 // Sample Schema - 出货主数据（字段来源：SAP RFC ZFM_ZSDELIVERY_DETAILS）
 const SAMPLE_SCHEMAS: Record<string, EntitySchema> = {
@@ -47,6 +47,9 @@ const SAMPLE_SCHEMAS: Record<string, EntitySchema> = {
       { name: "NAME1", label: "客户名称" },
       { name: "SORTL", label: "客户简称" },
       { name: "USERNAME", label: "过账人" },
+      { name: "DATE", label: "打印日期" },
+      { name: "TIME", label: "打印时间" },
+      { name: "DATETIME", label: "打印日期时间" },
     ],
     sampleData: {
       VBELN: "0080000123",
@@ -79,6 +82,9 @@ const SAMPLE_SCHEMAS: Record<string, EntitySchema> = {
       NAME1: "地博铜业有限公司",
       SORTL: "地博铜业",
       USERNAME: "IT01",
+      DATE: "2026-05-25",
+      TIME: "14:30:00",
+      DATETIME: "2026-05-25 14:30:00",
     }
   }
 };
@@ -94,27 +100,50 @@ const DEFAULT_NEW_LAYOUT: Omit<StickerLayout, 'id'> = {
   elements: []
 };
 
-type MainView = 'home' | 'docs' | 'labels' | 'employees' | 'machines' | 'storage';
+type MainView = 'home' | 'docs' | 'labels' | 'employees' | 'machines' | 'storage' | 'users' | 'logs';
 type SubView = 'list' | 'designer';
 
 function App() {
   const containerRef = useRef<HTMLDivElement>(null);
   const designerRef = useRef<QRLayoutDesigner | null>(null);
 
+  const [user, setUser] = useState<UserInfo | null>(() => {
+    try {
+      const raw = sessionStorage.getItem('user');
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  });
+
   const [mainView, setMainView] = useState<MainView>('home');
   const [subView, setSubView] = useState<SubView>('list');
   const [labels, setLabels] = useState<StickerLayout[]>([]);
   const [editingLayout, setEditingLayout] = useState<StickerLayout | null>(null);
 
+  const canDesign = user && (user.role === 'admin' || user.role === 'designer');
+  const canManage = user?.role === 'admin';
+
+  const handleLogin = (u: UserInfo) => setUser(u);
+  const handleLogout = () => {
+    sessionStorage.removeItem('user');
+    setUser(null);
+    setMainView('home');
+  };
+
   // Load data on mount
   useEffect(() => {
-    storage.initializeDefaults();
-    setLabels(storage.getLabels());
+    (async () => {
+      await storage.initializeDefaults();
+      const loadedLabels = await storage.getLabels();
+      setLabels(loadedLabels);
+    })();
   }, []);
 
   // Initialize Designer when switching to designer view
   useEffect(() => {
     if (subView !== 'designer' || !containerRef.current) return;
+
+    // Clear old designer DOM
+    containerRef.current.innerHTML = '';
 
     const initialLayout = editingLayout || {
       ...DEFAULT_NEW_LAYOUT,
@@ -125,10 +154,10 @@ function App() {
       element: containerRef.current,
       entitySchemas: SAMPLE_SCHEMAS,
       initialLayout: initialLayout as StickerLayout,
-      onSave: (layout) => {
-        console.log(layout, "layout")
-        storage.addLabel(layout);
-        setLabels(storage.getLabels());
+      onSave: async (layout) => {
+        await storage.addLabel(layout);
+        const updatedLabels = await storage.getLabels();
+        setLabels(updatedLabels);
         setSubView('list');
         setEditingLayout(null);
       }
@@ -152,9 +181,10 @@ function App() {
     setSubView('designer');
   };
 
-  const handleDelete = (id: string) => {
-    storage.deleteLabel(id);
-    setLabels(storage.getLabels());
+  const handleDelete = async (id: string) => {
+    await storage.deleteLabel(id);
+    const updatedLabels = await storage.getLabels();
+    setLabels(updatedLabels);
   };
 
   const handleBackToList = () => {
@@ -166,6 +196,11 @@ function App() {
     setMainView(view);
     setSubView('list'); // Reset subview when switching main tabs
   };
+
+  // Not logged in → show login page
+  if (!user) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -220,16 +255,14 @@ function App() {
                     </div>
                   </div>
 
-                  {/* Mobile Clear Cache */}
-                  <button
-                    onClick={() => {
-                      localStorage.removeItem('delivery_data_cache');
-                      window.location.reload();
-                    }}
-                    className="lg:hidden text-xs sm:text-sm text-gray-500 hover:text-gray-700 font-medium px-2 py-1.5 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer border border-gray-200 whitespace-nowrap"
-                  >
-                    清空查询
-                  </button>
+                  {/* Mobile User Info */}
+                  <div className="lg:hidden flex items-center gap-2">
+                    <span className="text-xs text-gray-400">{user.display_name}</span>
+                    <button onClick={handleLogout}
+                      className="text-xs text-gray-500 hover:text-red-600 font-medium px-2 py-1.5 hover:bg-red-50 rounded-lg transition-colors cursor-pointer">
+                      退出
+                    </button>
+                  </div>
                 </div>
 
                 {/* Navigation Tabs - Scrollable on mobile */}
@@ -257,16 +290,18 @@ function App() {
                       <span className="hidden sm:inline">文档</span>
                     </button>
                     */}
-                    <button
-                      onClick={() => handleMainViewChange('labels')}
-                      className={`flex items-center gap-2 px-4 py-2 font-semibold transition-all duration-200 rounded-lg cursor-pointer ${mainView === 'labels'
-                        ? 'bg-white text-blue-600 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
-                        }`}
-                    >
-                      <Tag size={18} />
-                      <span>标签</span>
-                    </button>
+                    {canDesign && (
+                      <button
+                        onClick={() => handleMainViewChange('labels')}
+                        className={`flex items-center gap-2 px-4 py-2 font-semibold transition-all duration-200 rounded-lg cursor-pointer ${mainView === 'labels'
+                          ? 'bg-white text-blue-600 shadow-sm'
+                          : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                          }`}
+                      >
+                        <Tag size={18} />
+                        <span>标签</span>
+                      </button>
+                    )}
                     <button
                       onClick={() => handleMainViewChange('employees')}
                       className={`flex items-center gap-2 px-5 py-2.5 font-semibold transition-all duration-200 rounded-lg cursor-pointer ${mainView === 'employees'
@@ -277,6 +312,30 @@ function App() {
                       <Truck size={18} />
                       <span>出货数据</span>
                     </button>
+                    {canManage && (
+                      <button
+                        onClick={() => handleMainViewChange('users' as any)}
+                        className={`flex items-center gap-2 px-4 py-2 font-semibold transition-all duration-200 rounded-lg cursor-pointer ${mainView === ('users' as any)
+                          ? 'bg-white text-blue-600 shadow-sm'
+                          : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                          }`}
+                      >
+                        <Users size={18} />
+                        <span className="hidden md:inline">用户</span>
+                      </button>
+                    )}
+                    {canManage && (
+                      <button
+                        onClick={() => handleMainViewChange('logs' as any)}
+                        className={`flex items-center gap-2 px-4 py-2 font-semibold transition-all duration-200 rounded-lg cursor-pointer ${mainView === ('logs' as any)
+                          ? 'bg-white text-blue-600 shadow-sm'
+                          : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                          }`}
+                      >
+                        <History size={18} />
+                        <span className="hidden md:inline">日志</span>
+                      </button>
+                    )}
                     {/* 已移除：设备按钮
                     <button
                       onClick={() => handleMainViewChange('machines')}
@@ -307,25 +366,10 @@ function App() {
 
                 {/* Desktop Actions */}
                 <div className="hidden lg:flex items-center gap-3">
-                  {/* 已移除：源代码按钮
-                  <a
-                    href="https://github.com/shashi089/qr-code-layout-generate-tool"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 font-medium px-3 py-1.5 hover:bg-gray-50 rounded-lg transition-colors border border-gray-200"
-                  >
-                    <Github size={18} />
-                    <span>源代码</span>
-                  </a>
-                  */}
-                  <button
-                    onClick={() => {
-                      localStorage.removeItem('delivery_data_cache');
-                      window.location.reload();
-                    }}
-                    className="text-sm text-gray-500 hover:text-gray-700 font-medium px-3 py-1.5 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer border border-gray-200 whitespace-nowrap"
-                  >
-                    清空查询
+                  <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">{user.display_name}</span>
+                  <button onClick={handleLogout}
+                    className="text-sm text-gray-500 hover:text-red-600 font-medium px-3 py-1.5 hover:bg-red-50 rounded-lg transition-colors cursor-pointer flex items-center gap-1">
+                    <LogOut size={14} /> 退出
                   </button>
                 </div>
               </div>
@@ -344,7 +388,11 @@ function App() {
             />
           ) : mainView === 'employees' ? (
             <EmployeeMaster />
-          ) : null /* 已移除：machines → <MachineMaster />, docs → <DocsPage />, storage → <BinMaster /> */}
+          ) : mainView === 'users' ? (
+            <UserManagePage />
+          ) : mainView === 'logs' ? (
+            <TemplateLogPage />
+          ) : null}
         </>
       )}
     </div>

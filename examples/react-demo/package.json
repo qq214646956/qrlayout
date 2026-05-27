@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.18",
+    "jsbarcode": "^3.12.3",
     "qrlayout-core": "^1.1.6",
     "qrlayout-ui": "^1.0.10",
     "react": "^19.2.0",

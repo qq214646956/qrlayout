@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import type { StickerLayout } from 'qrlayout-ui';
-import { Plus, Layout, Smartphone } from 'lucide-react';
+import { Plus, Layout, Smartphone, Search, X } from 'lucide-react';
 import { Table, type Column } from '../../components/Table';
 
 interface LabelListProps {
@@ -16,6 +16,13 @@ export const LabelList: React.FC<LabelListProps> = ({
     onEdit,
     onDelete
 }) => {
+    const [query, setQuery] = useState('');
+
+    const filtered = useMemo(() => {
+        if (!query.trim()) return labels;
+        const q = query.toLowerCase();
+        return labels.filter(l => l.name.toLowerCase().includes(q));
+    }, [labels, query]);
 
     const handleDelete = (label: StickerLayout) => {
         if (confirm(`确定要删除 "${label.name}" 吗？`)) {
@@ -69,7 +76,7 @@ export const LabelList: React.FC<LabelListProps> = ({
     return (
         <div className="p-8 max-w-7xl mx-auto animate-in fade-in duration-500">
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900 tracking-tight">标签模板</h1>
                     <p className="text-gray-500 mt-1">设计和管理您的条码布局</p>
@@ -83,9 +90,33 @@ export const LabelList: React.FC<LabelListProps> = ({
                 </button>
             </div>
 
+            {/* Search Bar */}
+            <div className="mb-6">
+                <div className="relative max-w-md">
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input
+                        type="text"
+                        className="w-full pl-9 pr-8 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                        placeholder="搜索标签模板名称..."
+                        value={query}
+                        onChange={e => setQuery(e.target.value)}
+                    />
+                    {query && (
+                        <button onClick={() => setQuery('')} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded cursor-pointer">
+                            <X size={14} className="text-gray-400" />
+                        </button>
+                    )}
+                </div>
+                {query && (
+                    <p className="text-xs text-gray-400 mt-1.5 ml-1">
+                        找到 {filtered.length} 个匹配
+                    </p>
+                )}
+            </div>
+
             {/* Content Table */}
             <Table
-                data={labels}
+                data={filtered}
                 columns={columns}
                 keyField="id"
                 onEdit={onEdit}

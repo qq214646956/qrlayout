@@ -35,6 +35,30 @@ async function resolveDataUrl(src: string): Promise<string | undefined> {
   }
 }
 
+function renderTextImage(
+  text: string,
+  fontSize: number,
+  color: string,
+  fontFamily: string,
+  fontWeight: string | number,
+  scale: number = 2,
+): { url: string; w: number; h: number } {
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d")!;
+  const size = fontSize * scale;
+  ctx.font = `${fontWeight} ${size}px ${fontFamily}`;
+  const m = ctx.measureText(text);
+  const tw = Math.ceil(m.width) + 4;
+  const th = Math.ceil(size * 1.4);
+  canvas.width = tw;
+  canvas.height = th;
+  ctx.font = `${fontWeight} ${size}px ${fontFamily}`;
+  ctx.fillStyle = color;
+  ctx.textBaseline = "top";
+  ctx.fillText(text, 2, 0);
+  return { url: canvas.toDataURL("image/png"), w: tw / scale, h: th / scale };
+}
+
 export async function exportToPDF(
   layout: StickerLayout,
   dataList: Record<string, any>[]
@@ -47,6 +71,17 @@ export async function exportToPDF(
     unit: pdfUnit,
     format: [layout.width, layout.height]
   });
+
+  // Unit conversion factor: px (at 96dpi) → layout unit
+  const pxPerUnit = (() => {
+    switch (pdfUnit) {
+      case "mm": return 96 / 25.4;
+      case "cm": return 96 / 2.54;
+      case "in": return 96;
+      case "pt": return 96 / 72;
+      default: return 1;
+    }
+  })();
 
   for (let i = 0; i < dataList.length; i++) {
     if (i > 0) doc.addPage([layout.width, layout.height], layout.width > layout.height ? "l" : "p");
@@ -82,28 +117,33 @@ export async function exportToPDF(
           const barcodeUrl = await generateBarcode(filledContent, element.barcodeFormat || "CODE128");
           doc.addImage(barcodeUrl, "PNG", x, y, w, h);
         }
+      } else if (element.type === "image") {
+        if (element.content) {
+          doc.addImage(element.content, "PNG", x, y, w, h);
+        }
       } else if (element.type === "text") {
         const style = element.style || {};
         const fontSize = style.fontSize || 12;
         const color = style.color || "#000000";
+        const fontFamily = style.fontFamily || "sans-serif";
+        const fontWeight = style.fontWeight || "normal";
+        const align = style.textAlign || "left";
+        const vAlign = style.verticalAlign || "top";
 
-        doc.setFontSize(fontSize);
-        doc.setTextColor(color);
+        // Always use canvas rendering to avoid CJK font issues in PDF
+        const img = renderTextImage(filledContent, fontSize, color, fontFamily, fontWeight);
+        const imgW = img.w / pxPerUnit;
+        const imgH = img.h / pxPerUnit;
 
         let drawX = x;
-        const align = style.textAlign || "left";
-        if (align === "center") drawX = x + w / 2;
-        if (align === "right") drawX = x + w;
+        if (align === "center") drawX = x + (w - imgW) / 2;
+        if (align === "right") drawX = x + w - imgW;
 
         let drawY = y;
-        const vAlign = style.verticalAlign || "top";
-        if (vAlign === "middle") drawY = y + h / 2;
-        if (vAlign === "bottom") drawY = y + h;
+        if (vAlign === "middle") drawY = y + (h - imgH) / 2;
+        if (vAlign === "bottom") drawY = y + h - imgH;
 
-        doc.text(filledContent, drawX, drawY, {
-          baseline: vAlign === "middle" ? "middle" : (vAlign === "bottom" ? "bottom" : "top"),
-          align: align as "left" | "center" | "right"
-        });
+        doc.addImage(img.url, "PNG", drawX, drawY, imgW, imgH);
       }
     }
   }

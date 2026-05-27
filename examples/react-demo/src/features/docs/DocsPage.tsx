@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BookOpen, Terminal, Download, Github, ChevronRight, Layers, Zap, FileText } from 'lucide-react';
+import { Terminal, Download, Github, Layers, Zap, FileText } from 'lucide-react';
 
 const SECTIONS = [
   { id: 'overview', label: '概览' },

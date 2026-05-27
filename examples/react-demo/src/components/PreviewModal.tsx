@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { X, ChevronLeft, ChevronRight, Eye, Download, FileText, Printer, Image as ImageIcon } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Eye, Download, Printer, Image as ImageIcon } from 'lucide-react';
 import { StickerPrinter } from 'qrlayout-core';
 import type { StickerLayout } from 'qrlayout-ui';
-import { exportToPNG, exportToBatchPDF, exportToZPLFile } from '../services/exportUtils';
+import { exportToPNG, exportToZPLFile } from '../services/exportUtils';
 
 interface Props {
     layout: StickerLayout;
@@ -45,9 +45,10 @@ export function PreviewModal({ layout, items, printer, onClose }: Props) {
         exportToPNG({ layout, items: [item], printer, baseFilename: 'delivery-label' });
     };
 
-    const handleDownloadPDF = async () => {
-        await exportToBatchPDF({ layout, items: [item], printer, baseFilename: 'delivery-label' });
-    };
+    // PDF 暂不可用（中文乱码问题）
+    // const handleDownloadPDF = async () => {
+    //     await exportToBatchPDF({ layout, items: [item], printer, baseFilename: 'delivery-label' });
+    // };
 
     const handleDownloadZPL = () => {
         exportToZPLFile({ layout, items: [item], printer, baseFilename: 'delivery-label' });
@@ -57,9 +58,10 @@ export function PreviewModal({ layout, items, printer, onClose }: Props) {
         await exportToPNG({ layout, items, printer, baseFilename: 'delivery-label' });
     };
 
-    const handleBatchPDF = async () => {
-        await exportToBatchPDF({ layout, items, printer, baseFilename: 'delivery-labels' });
-    };
+    // PDF 暂不可用（中文乱码问题）
+    // const handleBatchPDF = async () => {
+    //     await exportToBatchPDF({ layout, items, printer, baseFilename: 'delivery-labels' });
+    // };
 
     const handleBatchZPL = () => {
         exportToZPLFile({ layout, items, printer, baseFilename: 'delivery-labels' });
@@ -155,10 +157,12 @@ export function PreviewModal({ layout, items, printer, onClose }: Props) {
                             className="flex items-center gap-1.5 bg-white text-gray-700 hover:text-indigo-600 border border-gray-200 hover:border-indigo-200 px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer">
                             <ImageIcon size={15} /> PNG
                         </button>
+{/* PDF 暂不可用（中文乱码问题）
                         <button onClick={handleDownloadPDF}
                             className="flex items-center gap-1.5 bg-white text-gray-700 hover:text-red-600 border border-gray-200 hover:border-red-200 px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer">
                             <FileText size={15} /> PDF
                         </button>
+                        */}
                         <button onClick={handleDownloadZPL}
                             className="flex items-center gap-1.5 bg-white text-gray-700 hover:text-black border border-gray-200 hover:border-gray-400 px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer">
                             <Printer size={15} /> ZPL
@@ -176,10 +180,12 @@ export function PreviewModal({ layout, items, printer, onClose }: Props) {
                                     className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer">
                                     <Download size={15} /> 全部 PNG
                                 </button>
+{/* PDF 暂不可用（中文乱码问题）
                                 <button onClick={handleBatchPDF}
                                     className="flex items-center gap-1.5 bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer">
                                     <Download size={15} /> 全部 PDF
                                 </button>
+                                */}
                                 <button onClick={handleBatchZPL}
                                     className="flex items-center gap-1.5 bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300 px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer">
                                     <Download size={15} /> 全部 ZPL

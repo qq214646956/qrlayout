@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Search, RefreshCw, AlertCircle, Download, RotateCcw, Printer, FileText, Image as ImageIcon, Info, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Settings2, Eye } from 'lucide-react';
+import { Search, RefreshCw, AlertCircle, Download, RotateCcw, Printer, Image as ImageIcon, Info, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Settings2, Eye } from 'lucide-react';
 import { SearchableSelect } from '../../components/SearchableSelect';
 import { PreviewModal } from '../../components/PreviewModal';
 import { StickerPrinter } from 'qrlayout-core';
 import { storage } from '../../services/storage';
-import { exportToPNG, exportToBatchPDF, exportToZPLFile } from '../../services/exportUtils';
+import { exportToPNG, exportToZPLFile } from '../../services/exportUtils';
 import type { StickerLayout } from 'qrlayout-ui';
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = window.location.port === '5173' ? 'http://localhost:5000' : '';
 const CACHE_KEY = 'delivery_data_cache';
 const COLUMN_ORDER_KEY = 'delivery_column_order';
 
@@ -106,13 +106,15 @@ export function EmployeeMaster() {
     const editInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        storage.initializeDefaults();
-        const loadedLabels = storage.getLabels();
-        const deliveryLabels = loadedLabels.filter(l => l.targetEntity === 'delivery');
-        setLabels(deliveryLabels);
-        if (deliveryLabels.length > 0) {
-            setSelectedLayoutId(deliveryLabels[0].id);
-        }
+        (async () => {
+            await storage.initializeDefaults();
+            const loadedLabels = await storage.getLabels();
+            const deliveryLabels = loadedLabels.filter(l => l.targetEntity === 'delivery');
+            setLabels(deliveryLabels);
+            if (deliveryLabels.length > 0) {
+                setSelectedLayoutId(deliveryLabels[0].id);
+            }
+        })();
     }, []);
 
     // Derived column keys from data, respecting saved order
@@ -276,7 +278,15 @@ export function EmployeeMaster() {
         }
     };
 
-    const getSelectedItems = () => dataRef.current.filter((_, i) => selectedIds.has(i));
+    const getSelectedItems = () => {
+        const now = new Date();
+        const ds = now.toISOString().split('T')[0];
+        const ts = now.toTimeString().split(' ')[0];
+        const dts = `${ds} ${ts}`;
+        return dataRef.current
+            .filter((_, i) => selectedIds.has(i))
+            .map(item => ({ ...item, DATE: ds, TIME: ts, DATETIME: dts }));
+    };
     const activeLayout = labels.find(l => l.id === selectedLayoutId);
     const hasSelection = selectedIds.size > 0;
     const hasLayout = !!selectedLayoutId;
@@ -286,10 +296,11 @@ export function EmployeeMaster() {
         await exportToPNG({ layout: activeLayout, items: getSelectedItems(), printer: printer.current, baseFilename: 'delivery-label' });
     };
 
-    const handleExportPDF = async () => {
-        if (!activeLayout) return;
-        await exportToBatchPDF({ layout: activeLayout, items: getSelectedItems(), printer: printer.current, baseFilename: 'delivery-labels' });
-    };
+    // PDF 暂不可用（中文乱码问题）
+    // const handleExportPDF = async () => {
+    //     if (!activeLayout) return;
+    //     await exportToBatchPDF({ layout: activeLayout, items: getSelectedItems(), printer: printer.current, baseFilename: 'delivery-labels' });
+    // };
 
     const handleExportZPL = () => {
         if (!activeLayout) return;
@@ -361,7 +372,7 @@ export function EmployeeMaster() {
         <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 animate-in fade-in duration-500">
             <div className="mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">地博出货数据</h2>
-                <p className="text-gray-500 mt-1">发货明细查询（基于交货单 LIKP+LIPS）</p>
+                <p className="text-gray-500 mt-1">发货明细查询</p>
             </div>
 
             {/* Search Form */}
@@ -471,10 +482,12 @@ export function EmployeeMaster() {
                                     className="flex items-center gap-2 bg-white text-gray-700 hover:text-indigo-600 border border-gray-200 hover:border-indigo-200 px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                                     <ImageIcon size={16} /> PNG
                                 </button>
+{/* PDF 暂不可用（中文乱码问题）
                                 <button onClick={handleExportPDF} disabled={!hasLayout}
                                     className="flex items-center gap-2 bg-white text-gray-700 hover:text-red-600 border border-gray-200 hover:border-red-200 px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                                     <FileText size={16} /> PDF
                                 </button>
+                                */}
                                 <button onClick={handleExportZPL} disabled={!hasLayout}
                                     className="flex items-center gap-2 bg-white text-gray-700 hover:text-black border border-gray-200 hover:border-gray-400 px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                                     <Printer size={16} /> ZPL

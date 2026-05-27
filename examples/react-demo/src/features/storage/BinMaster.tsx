@@ -23,10 +23,10 @@ export function BinMaster() {
         loadData();
     }, []);
 
-    const loadData = () => {
+    const loadData = async () => {
         setBins(storage.getBins());
-        const loadedLabels = storage.getLabels();
-        const storageLabels = loadedLabels.filter(l => l.targetEntity === 'storage');
+        const loadedLabels = await storage.getLabels();
+        const storageLabels = loadedLabels.filter((l: any) => l.targetEntity === 'storage');
         setLabels(storageLabels);
         if (storageLabels.length > 0 && !selectedLayoutId) {
             setSelectedLayoutId(storageLabels[0].id);

@@ -23,10 +23,10 @@ export function MachineMaster() {
         loadData();
     }, []);
 
-    const loadData = () => {
+    const loadData = async () => {
         setMachines(storage.getMachines());
-        const loadedLabels = storage.getLabels();
-        const machineLabels = loadedLabels.filter(l => l.targetEntity === 'machine');
+        const loadedLabels = await storage.getLabels();
+        const machineLabels = loadedLabels.filter((l: any) => l.targetEntity === 'machine');
         setLabels(machineLabels);
         if (machineLabels.length > 0 && !selectedLayoutId) {
             setSelectedLayoutId(machineLabels[0].id);
